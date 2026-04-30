@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { supabase } from '@/lib/db';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_SIZE = 5 * 1024 * 1024; // 5MB
@@ -22,24 +21,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `File exceeds 5MB limit (${(file.size / 1024 / 1024).toFixed(1)}MB).` }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
-    // Unique filename: timestamp + random + sanitised original name
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_').slice(0, 50);
     const filename = `${uniqueSuffix}-${safeName}`;
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    await mkdir(uploadDir, { recursive: true });
+    // Upload to Supabase Storage
+    const { data: uploadData, error } = await supabase.storage
+      .from('listing-images')
+      .upload(`public/${filename}`, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type
+      });
 
-    const filePath = path.join(uploadDir, filename);
-    await writeFile(filePath, buffer);
+    if (error) {
+      console.error('Supabase upload error:', error);
+      return NextResponse.json({ error: 'Failed to upload image to storage' }, { status: 500 });
+    }
 
-    return NextResponse.json({ success: true, url: `/uploads/${filename}` });
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('listing-images')
+      .getPublicUrl(`public/${filename}`);
+
+    return NextResponse.json({ success: true, url: publicUrl });
   } catch (error) {
-    console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    console.error('Error uploading file:', error);
+    return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 });
   }
 }

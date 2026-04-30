@@ -90,14 +90,7 @@ export default function CTASection() {
                 transition={{ delay: 0.7 }}
                 className="flex flex-col sm:flex-row gap-4"
               >
-                <Link
-                  href="/admin/listings/new"
-                  id="list-home-cta"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-clay text-white font-bold text-base shadow-xl shadow-clay/30 hover:bg-clay-dark hover:shadow-clay/50 transition-all duration-200 hover:-translate-y-1 group"
-                >
-                  Start Listing Free
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
-                </Link>
+
                 <Link
                   href="/about"
                   className="inline-flex items-center justify-center px-8 py-4 rounded-2xl border-2 border-white/30 text-white font-semibold text-base hover:bg-white/10 transition-all duration-200"

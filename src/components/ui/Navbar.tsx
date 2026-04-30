@@ -76,12 +76,7 @@ export default function Navbar() {
 
           {/* CTA + Mobile Toggle */}
           <div className="flex items-center gap-4">
-            <Link
-              href="/admin"
-              className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sage text-white text-sm font-semibold shadow-lg shadow-sage/25 hover:bg-sage-dark hover:shadow-sage/40 transition-all duration-200 hover:-translate-y-0.5"
-            >
-              List Your Home
-            </Link>
+
 
             <button
               id="mobile-menu-toggle"
@@ -146,15 +141,7 @@ export default function Navbar() {
                 ))}
               </nav>
 
-              <div className="p-6 border-t border-offwhite-dark">
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center justify-center w-full py-3 rounded-xl bg-sage text-white font-semibold text-sm shadow-lg shadow-sage/25 hover:bg-sage-dark transition-all duration-200"
-                >
-                  List Your Home
-                </Link>
-              </div>
+
             </motion.div>
           </>
         )}

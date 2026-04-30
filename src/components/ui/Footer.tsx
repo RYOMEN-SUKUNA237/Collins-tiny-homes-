@@ -21,7 +21,6 @@ const footerLinks = {
     { label: 'Contact Us', href: '/contact' },
     { label: 'Buyer Guide', href: '/guides/buying' },
     { label: 'Renter Guide', href: '/guides/renting' },
-    { label: 'List Your Home', href: '/admin' },
     { label: 'FAQ', href: '/faq' },
   ],
 };
