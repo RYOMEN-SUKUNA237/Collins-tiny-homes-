@@ -7,7 +7,10 @@ if (!supabaseUrl || !supabaseKey) {
   console.warn('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl || '', supabaseKey || '');
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseKey || 'placeholder'
+);
 
 // Keep the old getDb function for backwards compatibility in seed (but we don't really need it anymore)
 export function getDb() {
