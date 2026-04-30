@@ -7,8 +7,8 @@ import DeleteButton from '@/components/admin/DeleteButton';
 export const metadata: Metadata = { title: 'Manage Lands | Admin' };
 export const dynamic = 'force-dynamic';
 
-export default function AdminLandsPage() {
-  const lands = getAllLands() as any[];
+export default async function AdminLandsPage() {
+  const lands = await getAllLands() as any[];
 
   return (
     <>

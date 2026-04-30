@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const p = await params;
-    const images = getListingImages(p.id);
+    const images = await getListingImages(p.id);
     return NextResponse.json(images);
   } catch (error) {
     console.error('Error fetching listing images:', error);
@@ -25,7 +25,7 @@ export async function POST(
     const data = await req.json();
     const newId = uuidv4();
     
-    createListingImage({
+    await createListingImage({
       id: newId,
       listing_id: p.id,
       url: data.url,

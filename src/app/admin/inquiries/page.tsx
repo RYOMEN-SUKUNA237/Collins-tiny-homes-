@@ -5,8 +5,8 @@ import InquiriesTable from '@/components/admin/InquiriesTable';
 export const metadata: Metadata = { title: 'Inquiries | Admin' };
 export const dynamic = 'force-dynamic';
 
-export default function AdminInquiriesPage() {
-  const inquiries = getAllInquiries() as any[];
+export default async function AdminInquiriesPage() {
+  const inquiries = await getAllInquiries() as any[];
 
   const unread = inquiries.filter(i => i.status === 'new').length;
 

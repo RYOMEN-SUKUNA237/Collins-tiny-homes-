@@ -49,8 +49,8 @@ const statusConfig: Record<string, { bg: string; dot: string; label: string }> =
   pending: { bg: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500', label: 'Pending' },
 };
 
-export default function AdminPaymentsPage() {
-  const payments = getAllPayments() as Payment[];
+export default async function AdminPaymentsPage() {
+  const payments = await getAllPayments() as Payment[];
   const total = payments.reduce((s, p) => s + p.amount, 0);
   const declinedPayments = payments.filter(p => p.status === 'declined');
   const completedPayments = payments.filter(p => p.status === 'completed');

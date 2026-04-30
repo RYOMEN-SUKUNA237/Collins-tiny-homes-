@@ -10,9 +10,9 @@ import { dbRowToListing } from '@/lib/db-adapter';
 
 export const dynamic = 'force-dynamic';
 
-export default function HomePage() {
+export default async function HomePage() {
   // Fetch from the live DB — prefer featured listings; fall back to all active
-  const allRows = getAllListings({ status: 'active' }) as any[];
+  const allRows = await getAllListings({ status: 'active' }) as any[];
   const allListings = allRows.map(dbRowToListing);
 
   const saleListings = allListings

@@ -25,7 +25,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   const minOffGrid = params.minOffGrid ? parseInt(params.minOffGrid) : 0;
 
   // Pull from live SQLite DB
-  const rows = getAllListings({
+  const rows = await getAllListings({
     priceType: mode,
     homeType: homeTypeFilter,
     minOffGrid: minOffGrid > 0 ? minOffGrid : undefined,

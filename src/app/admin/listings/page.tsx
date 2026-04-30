@@ -7,8 +7,8 @@ import DeleteButton from '@/components/admin/DeleteButton';
 export const metadata: Metadata = { title: 'Manage Listings | Admin' };
 export const dynamic = 'force-dynamic';
 
-export default function AdminListingsPage() {
-  const listings = getAllListings() as any[];
+export default async function AdminListingsPage() {
+  const listings = await getAllListings() as any[];
 
   return (
     <>

@@ -21,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const row = getListingById(id) as any;
+  const row = await getListingById(id) as any;
   if (!row) return { title: 'Listing Not Found' };
   return {
     title: row.title,
@@ -35,12 +35,12 @@ export default async function ListingDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const row = getListingById(id) as any;
+  const row = await getListingById(id) as any;
   if (!row) notFound();
 
   const listing = dbRowToListing(row);
 
-  const galleryRows = getListingImages(id) as any[];
+  const galleryRows = await getListingImages(id) as any[];
   const allImages = [
     listing.coverImage,
     ...galleryRows.map((r) => r.url).filter((url) => url && url !== listing.coverImage),

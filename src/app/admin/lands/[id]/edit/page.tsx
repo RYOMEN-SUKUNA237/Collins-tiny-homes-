@@ -10,7 +10,7 @@ export default async function EditLandPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const land = getLandById(id) as any;
+  const land = await getLandById(id) as any;
   if (!land) notFound();
 
   return (

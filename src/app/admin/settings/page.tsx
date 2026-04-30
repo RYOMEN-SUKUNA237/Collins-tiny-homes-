@@ -5,8 +5,8 @@ import SettingsForm from '@/components/admin/SettingsForm';
 export const metadata: Metadata = { title: 'Site Settings | Admin' };
 export const dynamic = 'force-dynamic';
 
-export default function AdminSettingsPage() {
-  const settings = getAllSettings();
+export default async function AdminSettingsPage() {
+  const settings = await getAllSettings();
 
   // Ensure all expected keys exist with defaults
   const defaults: Record<string, string> = {

@@ -10,10 +10,10 @@ export default async function EditListingPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const listing = getListingById(id) as any;
+  const listing = await getListingById(id) as any;
   if (!listing) notFound();
 
-  const images = getListingImages(id) as any[];
+  const images = await getListingImages(id) as any[];
 
   return (
     <div className="p-8 pb-24">
