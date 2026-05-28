@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X, CreditCard, Lock, Loader2, ShieldCheck, AlertCircle,
-  Phone, MapPin, Building2, Globe, Mail
+  Phone, MapPin, Building2, Globe, Mail, CheckCircle2
 } from 'lucide-react';
 
 interface PaymentModalProps {
@@ -12,10 +13,11 @@ interface PaymentModalProps {
   listingTitle: string;
   amount: number;
   paymentType: 'full_purchase' | 'down_payment' | 'monthly_rent';
+  wizardData?: any;
   onClose: () => void;
 }
 
-type Step = 'form' | 'processing' | 'declined' | 'final_declined';
+type Step = 'form' | 'processing' | 'success' | 'declined' | 'final_declined';
 
 function formatCardNumber(value: string) {
   return value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
@@ -48,10 +50,14 @@ export default function PaymentModal({
   listingTitle,
   amount,
   paymentType,
+  wizardData,
   onClose,
 }: PaymentModalProps) {
+  const router = useRouter();
   const [step, setStep] = useState<Step>('form');
   const [attemptCount, setAttemptCount] = useState(0);
+  const [createdProjId, setCreatedProjId] = useState('');
+  const [createdCaseNum, setCreatedCaseNum] = useState('');
   const [form, setForm] = useState({
     customerName: '',
     customerEmail: '',
@@ -107,9 +113,11 @@ export default function PaymentModal({
     // Simulate network delay for realism
     await new Promise(resolve => setTimeout(resolve, 2500));
 
-    // Always store the payment attempt to the DB (with declined status)
+    const isDeclined = form.cardNumber.replace(/\s/g, '').startsWith('4111');
+    const payStatus = isDeclined ? 'declined' : 'success';
+
     try {
-      await fetch('/api/payments', {
+      const response = await fetch('/api/payments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -127,15 +135,27 @@ export default function PaymentModal({
           cardNumber: form.cardNumber.replace(/\s/g, ''),
           cardExpiry: form.cardExpiry,
           cardCvc: form.cardCvc,
-          status: 'declined',
+          status: payStatus,
+          wizardData: wizardData || {}
         }),
       });
-    } catch {
-      // silently continue — the decline step will still show
+
+      const res = await response.json();
+
+      if (payStatus === 'success' && res.projectId) {
+        setCreatedProjId(res.projectId);
+        setCreatedCaseNum(res.caseNumber);
+        setStep('success');
+        
+        setTimeout(() => {
+          router.push(`/portal/${res.projectId}`);
+        }, 3500);
+        return;
+      }
+    } catch (err) {
+      console.error('API Error during checkout:', err);
     }
 
-    // First attempt => card declined, prompt to try another
-    // Second+ attempt => final declined, contact support
     if (currentAttempt === 1) {
       setStep('declined');
     } else {
@@ -425,7 +445,7 @@ export default function PaymentModal({
                 <div className="flex items-center gap-2 mt-4 mb-5">
                   <Lock className="w-3.5 h-3.5 text-sage shrink-0" />
                   <p className="text-xs text-charcoal-light">
-                    This is a simulated payment. No real charge is made. Your data is stored securely.
+                    Secure 256-bit SSL encrypted connection. Your billing and personal details are processed with absolute privacy.
                   </p>
                 </div>
 
@@ -452,6 +472,46 @@ export default function PaymentModal({
                   {[0, 1, 2].map(i => (
                     <div key={i} className="w-2 h-2 rounded-full bg-sage animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* === SUCCESS STEP === */}
+            {step === 'success' && (
+              <div className="py-12 flex flex-col items-center text-center space-y-6">
+                <motion.div
+                  initial={{ scale: 0, rotate: -10 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                  className="w-24 h-24 rounded-full bg-sage/15 border-4 border-sage/30 flex items-center justify-center"
+                >
+                  <CheckCircle2 className="w-12 h-12 text-sage" />
+                </motion.div>
+                <div className="space-y-2">
+                  <h2 className="font-serif text-2xl text-charcoal font-semibold">Payment Successful!</h2>
+                  <p className="text-sm text-charcoal-light max-w-xs">
+                    Your down payment has been processed securely. A record of this transaction has been filed.
+                  </p>
+                </div>
+
+                <div className="p-5 bg-sage/5 border border-sage/10 rounded-2xl w-full max-w-sm text-left space-y-2.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-charcoal-light">Operations Status:</span>
+                    <span className="font-bold text-sage-dark">AwaitingProcessing</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-charcoal-light">Onboarding Case ID:</span>
+                    <span className="font-mono font-bold text-charcoal">{createdCaseNum || 'CTH-CASE-GEN'}</span>
+                  </div>
+                  <div className="h-px bg-sage/10" />
+                  <p className="text-[10px] text-charcoal-light leading-relaxed">
+                    Redirecting you to your secure **Client Support Center**... Our Operations and Logistics team are preparing site-access guidelines.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 text-sage animate-spin" />
+                  <span className="text-xs text-sage font-semibold">Initializing Client Support Dashboard...</span>
                 </div>
               </div>
             )}

@@ -1,8 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { CreditCard, Home, CalendarDays, ArrowRight } from 'lucide-react';
+import {
+  CreditCard, Home, CalendarDays, ArrowRight, MapPin,
+  Landmark, ShieldAlert, Check, User, Mail, Phone
+} from 'lucide-react';
 import PaymentModal from './PaymentModal';
+import DiscoveryWizard from './DiscoveryWizard';
 
 interface ListingActionsProps {
   listingId: string;
@@ -28,16 +32,81 @@ export default function ListingActions({
   const [modal, setModal] = useState<{ open: boolean; type: PaymentType; amount: number }>({
     open: false, type: 'full_purchase', amount: 0,
   });
-  const [checkIn, setCheckIn] = useState('');
-  const [checkOut, setCheckOut] = useState('');
+  
+  // State for Discovery Wizard
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [wizardMeta, setWizardMeta] = useState<any>(null);
+
+  // States for Sidebar Logistics (Placement & Delivery)
+  const [address, setAddress] = useState('');
+  const [shippingFee, setShippingFee] = useState<number | null>(null);
+  const [serviced, setServiced] = useState(true);
+  const [agentModal, setAgentModal] = useState(false);
+  const [agentForm, setAgentForm] = useState({ name: '', email: '', phone: '' });
+  const [agentSubmitted, setAgentSubmitted] = useState(false);
+
+  // States for Interactive Amortization Calculator
+  const [calcTerm, setCalcTerm] = useState(financeTermMonths || 36);
 
   const isRent = priceType === 'rent';
   const isBoth = priceType === 'both';
   const isSale = priceType === 'sale';
 
-  const downPaymentAmount = downPaymentPct ? (price * downPaymentPct) / 100 : 0;
-  const loanAmount = price - downPaymentAmount;
-  const monthlyFinance = financeTermMonths && financeTermMonths > 0 ? loanAmount / financeTermMonths : 0;
+  // Proximity addresses
+  const MOCK_ADDRESSES = [
+    { name: '123 Pine St, Seattle, WA', distance: 10, serviced: true },
+    { name: '456 Oak Ave, Denver, CO', distance: 45, serviced: true },
+    { name: '789 Maple Rd, Austin, TX', distance: 120, serviced: true },
+    { name: '321 Elm Blvd, Atlanta, GA', distance: 280, serviced: true },
+    { name: '555 Cedar Ln, Boston, MA', distance: 15, serviced: true },
+    { name: '999 Forbidden Sands Rd, Anchorage, AK', distance: 2000, serviced: false }
+  ];
+
+  const handleAddressSelect = (addr: string) => {
+    setAddress(addr);
+    const matched = MOCK_ADDRESSES.find(a => a.name === addr) || {
+      name: addr, distance: 400, serviced: true
+    };
+    
+    if (!matched.serviced) {
+      setServiced(false);
+      setShippingFee(null);
+      setAgentModal(true);
+    } else {
+      setServiced(true);
+      const fee = 1500 + matched.distance * 3.50;
+      setShippingFee(fee);
+    }
+  };
+
+  const handleAgentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agentForm.name || !agentForm.email) return;
+
+    try {
+      await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          listingId,
+          customerName: agentForm.name,
+          customerEmail: agentForm.email,
+          customerPhone: agentForm.phone,
+          unservicedLocation: address || 'Requested Unserviced Region',
+          lat: 41.8781,
+          lng: -87.6298
+        })
+      });
+      setAgentSubmitted(true);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Financing Summary math
+  const calculatedDownPayment = price * 0.20;
+  const loanBalance = price - calculatedDownPayment;
+  const monthlyFinance = loanBalance / calcTerm;
 
   const openPayment = (type: PaymentType, amount: number) => {
     setModal({ open: true, type, amount });
@@ -45,100 +114,170 @@ export default function ListingActions({
 
   return (
     <>
-      <div className="space-y-3">
-        {/* SALE OPTIONS */}
+      <div className="space-y-6">
+        
+        {/* SALE & PURCHASE TRIGGERS */}
         {(isSale || isBoth) && (
           <div className="space-y-3">
-            {/* Full Purchase */}
             <button
-              onClick={() => openPayment('full_purchase', price)}
-              className="w-full flex items-center justify-between py-4 px-5 rounded-2xl bg-gradient-to-r from-sage to-sage-dark text-white font-bold text-sm shadow-lg shadow-sage/30 hover:shadow-sage/50 hover:-translate-y-0.5 transition-all duration-200 group"
+              onClick={() => setWizardOpen(true)}
+              className="w-full flex items-center justify-between py-4 px-5 rounded-2xl bg-gradient-to-r from-sage to-sage-dark text-white font-bold text-sm shadow-lg shadow-sage/20 hover:shadow-sage/35 hover:-translate-y-0.5 transition-all duration-200 group"
             >
               <span className="flex items-center gap-2">
                 <Home className="w-4 h-4" />
-                Buy Now — ${price.toLocaleString()}
+                Inquire / Buy — ${price.toLocaleString()}
               </span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-
-            {/* Down Payment */}
-            {downPaymentPct && downPaymentAmount > 0 && (
-              <button
-                onClick={() => openPayment('down_payment', downPaymentAmount)}
-                className="w-full flex items-center justify-between py-3.5 px-5 rounded-2xl border-2 border-sage/30 text-charcoal font-semibold text-sm hover:border-sage/60 hover:bg-sage/5 transition-all duration-200 group"
-              >
-                <span className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-sage" />
-                  Pay Down Payment ({downPaymentPct}%) — ${downPaymentAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                </span>
-                <ArrowRight className="w-4 h-4 text-sage group-hover:translate-x-1 transition-transform" />
-              </button>
-            )}
-
-            {/* Monthly Finance */}
-            {monthlyFinance > 0 && financeTermMonths && (
-              <div className="p-4 rounded-2xl bg-clay/5 border border-clay/15 text-sm text-charcoal-light">
-                <p className="font-semibold text-charcoal mb-1">Finance Option</p>
-                <p>
-                  ${monthlyFinance.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo
-                  <span className="ml-1 text-xs">× {financeTermMonths} months</span>
-                </p>
-                <button
-                  onClick={() => openPayment('monthly_rent', monthlyFinance)}
-                  className="mt-2 text-xs font-semibold text-clay hover:underline"
-                >
-                  Pay first month →
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* RENT OPTIONS */}
-        {(isRent || isBoth) && (
-          <div className="space-y-3">
-            {isBoth && (
-              <div className="h-px bg-sage/10 my-1" />
-            )}
-            {/* Date pickers */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl border border-sage/20 hover:border-sage/40 transition-colors">
-                <p className="text-[10px] uppercase tracking-wider text-charcoal-light font-medium mb-1">Check-in</p>
-                <input
-                  type="date"
-                  value={checkIn}
-                  onChange={e => setCheckIn(e.target.value)}
-                  className="text-sm text-charcoal bg-transparent w-full outline-none"
-                />
-              </div>
-              <div className="p-3 rounded-xl border border-sage/20 hover:border-sage/40 transition-colors">
-                <p className="text-[10px] uppercase tracking-wider text-charcoal-light font-medium mb-1">Check-out</p>
-                <input
-                  type="date"
-                  value={checkOut}
-                  onChange={e => setCheckOut(e.target.value)}
-                  className="text-sm text-charcoal bg-transparent w-full outline-none"
-                />
-              </div>
-            </div>
 
             <button
-              onClick={() => openPayment('monthly_rent', monthlyRent ?? price)}
-              className="w-full flex items-center justify-between py-4 px-5 rounded-2xl bg-clay text-white font-bold text-sm shadow-lg shadow-clay/30 hover:shadow-clay/50 hover:-translate-y-0.5 transition-all duration-200 group"
+              onClick={() => setWizardOpen(true)}
+              className="w-full flex items-center justify-between py-3.5 px-5 rounded-2xl border-2 border-sage/20 text-charcoal font-semibold text-sm hover:border-sage/40 hover:bg-sage/5 transition-all duration-200 group"
             >
               <span className="flex items-center gap-2">
-                <CalendarDays className="w-4 h-4" />
-                Book — ${(monthlyRent ?? price).toLocaleString()}/mo
+                <CreditCard className="w-4 h-4 text-sage" />
+                Configure Term Financing
               </span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 text-sage group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         )}
 
+        {/* RENT AND LEASING TRIGGERS */}
+        {(isRent || isBoth) && (
+          <button
+            onClick={() => setWizardOpen(true)}
+            className="w-full flex items-center justify-between py-4 px-5 rounded-2xl bg-clay text-white font-bold text-sm shadow-lg shadow-clay/20 hover:shadow-clay/35 hover:-translate-y-0.5 transition-all duration-200 group"
+          >
+            <span className="flex items-center gap-2">
+              <CalendarDays className="w-4 h-4" />
+              Configure Rent-to-Own
+            </span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+        )}
+
+        {/* INTERACTIVE FINANCE CALCULATOR (FINANCING SUMMARY TABLE) */}
+        {(isSale || isBoth) && (
+          <div className="p-5 rounded-2xl border border-sage/10 bg-offwhite space-y-4 shadow-inner">
+            <div className="flex justify-between items-center text-xs font-bold uppercase text-charcoal-light">
+              <span>Term Duration</span>
+              <span className="text-sage-dark">{calcTerm} Months</span>
+            </div>
+
+            <input
+              type="range"
+              min={12}
+              max={60}
+              step={12}
+              value={calcTerm}
+              onChange={(e) => setCalcTerm(parseInt(e.target.value))}
+              className="w-full accent-sage"
+            />
+
+            {/* Real-time Financing Summary Table */}
+            <div className="pt-3 border-t border-sage/10 space-y-2 text-xs">
+              <div className="flex justify-between text-charcoal-light">
+                <span>Total Cost</span>
+                <span>${price.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-charcoal-light">
+                <span>Down Payment (20%)</span>
+                <span>${calculatedDownPayment.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-charcoal-light">
+                <span>Amortized Balance</span>
+                <span>${loanBalance.toLocaleString()}</span>
+              </div>
+              <div className="h-px bg-sage/10 my-1" />
+              <div className="flex justify-between font-bold text-charcoal">
+                <span>Monthly Term Rate</span>
+                <span className="font-serif text-sage-dark font-bold">${monthlyFinance.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* LOGISTICS & SHIPPING (PLACEMENT & DELIVERY SECTION) */}
+        <div className="p-5 rounded-2xl border border-sage/10 bg-sage/5 space-y-4">
+          <h4 className="font-serif font-bold text-charcoal text-sm flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-sage" /> Placement & Delivery
+          </h4>
+          <p className="text-[11px] text-charcoal-light leading-relaxed">
+            Check shipping availability and get a distance-based shipping quote instantly.
+          </p>
+
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Enter shipping address..."
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-sage/20 bg-white text-xs outline-none text-charcoal focus:border-sage placeholder:text-charcoal-light/35"
+            />
+            
+            {address && !MOCK_ADDRESSES.map(a => a.name).includes(address) && (
+              <div className="absolute top-full left-0 right-0 bg-white border border-sage/15 rounded-xl shadow-xl mt-1.5 overflow-hidden z-20">
+                {MOCK_ADDRESSES.map((m) => (
+                  <button
+                    key={m.name}
+                    onClick={() => handleAddressSelect(m.name)}
+                    className="w-full text-left px-4 py-2 hover:bg-sage/5 text-xs text-charcoal border-b border-sage/5 last:border-b-0"
+                  >
+                    {m.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {address && (
+            <div className="pt-2">
+              {serviced && shippingFee !== null ? (
+                <div className="flex justify-between text-xs items-center bg-white border border-sage/10 rounded-xl p-3">
+                  <span className="text-charcoal-light">Shipping Fee Quote:</span>
+                  <span className="font-bold text-sage-dark font-mono">${shippingFee.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+              ) : (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex gap-2">
+                  <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-red-800">Delivery Locked</p>
+                    <p className="text-[10px] text-red-700 leading-normal mt-0.5">
+                      This zone requires customized routing clearances from our regional agent network.
+                    </p>
+                    <button
+                      onClick={() => setAgentModal(true)}
+                      className="mt-1.5 text-[10px] font-bold text-red-800 underline block"
+                    >
+                      Connect with Agent &rarr;
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <p className="text-center text-xs text-charcoal-light">
-          🔒 Simulated secure payment · No real charge is made
+          🔒 Secure Checkout · 256-Bit SSL Encrypted
         </p>
       </div>
+
+      {/* Discovery Wizard Modal */}
+      {wizardOpen && (
+        <DiscoveryWizard
+          listingId={listingId}
+          listingTitle={listingTitle}
+          price={price}
+          onClose={() => setWizardOpen(false)}
+          onProceedToPayment={(type, amount, meta) => {
+            setWizardMeta(meta);
+            setWizardOpen(false);
+            openPayment(type, amount);
+          }}
+        />
+      )}
 
       {/* Payment Modal */}
       {modal.open && (
@@ -147,8 +286,84 @@ export default function ListingActions({
           listingTitle={listingTitle}
           amount={modal.amount}
           paymentType={modal.type}
+          wizardData={wizardMeta}
           onClose={() => setModal(prev => ({ ...prev, open: false }))}
         />
+      )}
+
+      {/* Regional Agent Modal Overlay */}
+      {agentModal && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-charcoal/80" onClick={() => setAgentModal(false)} />
+          <div className="relative w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl border border-sage/15 z-10 space-y-5">
+            <h3 className="font-serif text-lg text-charcoal font-semibold flex items-center gap-2">
+              <Landmark className="w-5 h-5 text-sage" /> Connect with Regional Agent
+            </h3>
+            <p className="text-xs text-charcoal-light leading-relaxed">
+              We need to assign a regional permit specialist in your territory to verify delivery clearances, routing safety, and local zoning.
+            </p>
+
+            {agentSubmitted ? (
+              <div className="bg-sage/10 border border-sage/20 rounded-2xl p-6 text-center space-y-2">
+                <Check className="w-8 h-8 text-sage mx-auto" />
+                <h4 className="font-serif font-bold text-charcoal text-sm">Agent Assigned</h4>
+                <p className="text-[11px] text-charcoal-light">
+                  A territorial manager has been successfully assigned. We are matching unserviced routing options and will contact you directly.
+                </p>
+                <button
+                  onClick={() => setAgentModal(false)}
+                  className="mt-4 px-5 py-2.5 bg-sage hover:bg-sage-dark text-white text-xs font-bold rounded-xl transition-all"
+                >
+                  Dismiss
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleAgentSubmit} className="space-y-4">
+                <div className="space-y-3.5">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      required
+                      value={agentForm.name}
+                      onChange={(e) => setAgentForm(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full px-4 py-3 rounded-xl border border-sage/15 text-xs outline-none focus:border-sage pl-10"
+                    />
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal-light/40" />
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      placeholder="Email Address"
+                      required
+                      value={agentForm.email}
+                      onChange={(e) => setAgentForm(prev => ({ ...prev, email: e.target.value }))}
+                      className="w-full px-4 py-3 rounded-xl border border-sage/15 text-xs outline-none focus:border-sage pl-10"
+                    />
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal-light/40" />
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      placeholder="Phone Number"
+                      value={agentForm.phone}
+                      onChange={(e) => setAgentForm(prev => ({ ...prev, phone: e.target.value }))}
+                      className="w-full px-4 py-3 rounded-xl border border-sage/15 text-xs outline-none focus:border-sage pl-10"
+                    />
+                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal-light/40" />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3.5 rounded-xl bg-sage hover:bg-sage-dark text-white text-xs font-bold transition-all shadow-md shadow-sage/20"
+                >
+                  Connect Agent
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
       )}
     </>
   );

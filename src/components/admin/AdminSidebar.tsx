@@ -1,36 +1,71 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Home, TrendingUp, Users, Eye, Settings, MapPin, Database, CreditCard } from 'lucide-react';
-import { useState } from 'react';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  Home,
+  TrendingUp,
+  Users,
+  Eye,
+  Settings,
+  MapPin,
+  Database,
+  CreditCard,
+  Briefcase,
+  MessageCircle,
+} from "lucide-react";
+import { useState } from "react";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [seeding, setSeeding] = useState(false);
-  const [seedMsg, setSeedMsg] = useState('');
+  const [seedMsg, setSeedMsg] = useState("");
 
   const links = [
-    { label: 'Dashboard', href: '/admin', icon: TrendingUp, exact: true },
-    { label: 'Listings', href: '/admin/listings', icon: Home, exact: false },
-    { label: 'Lands', href: '/admin/lands', icon: MapPin, exact: false },
-    { label: 'Inquiries', href: '/admin/inquiries', icon: Users, exact: false },
-    { label: 'Payments', href: '/admin/payments', icon: CreditCard, exact: false },
-    { label: 'Settings', href: '/admin/settings', icon: Settings, exact: false },
+    { label: "Dashboard", href: "/admin", icon: TrendingUp, exact: true },
+    {
+      label: "Pipeline CRM",
+      href: "/admin/pipeline",
+      icon: Briefcase,
+      exact: false,
+    },
+    { label: "Listings", href: "/admin/listings", icon: Home, exact: false },
+    { label: "Lands", href: "/admin/lands", icon: MapPin, exact: false },
+    { label: "Inquiries", href: "/admin/inquiries", icon: Users, exact: false },
+    {
+      label: "Support Inbox",
+      href: "/admin/support",
+      icon: MessageCircle,
+      exact: false,
+    },
+    {
+      label: "Payments",
+      href: "/admin/payments",
+      icon: CreditCard,
+      exact: false,
+    },
+    {
+      label: "Settings",
+      href: "/admin/settings",
+      icon: Settings,
+      exact: false,
+    },
   ];
 
   const handleSeed = async () => {
     setSeeding(true);
-    setSeedMsg('');
+    setSeedMsg("");
     try {
-      const res = await fetch('/api/seed', { method: 'POST' });
+      const res = await fetch("/api/seed", { method: "POST" });
       const data = await res.json();
-      setSeedMsg(data.status === 'already_seeded' ? 'Already seeded!' : 'Seeded! ✓');
+      setSeedMsg(
+        data.status === "already_seeded" ? "Already seeded!" : "Seeded! ✓",
+      );
     } catch {
-      setSeedMsg('Seed failed');
+      setSeedMsg("Seed failed");
     } finally {
       setSeeding(false);
-      setTimeout(() => setSeedMsg(''), 3000);
+      setTimeout(() => setSeedMsg(""), 3000);
     }
   };
 
@@ -43,8 +78,12 @@ export default function AdminSidebar() {
             <Home className="w-4 h-4 text-white" strokeWidth={2} />
           </div>
           <div>
-            <p className="font-serif text-sm text-white font-semibold">Collins</p>
-            <p className="text-[10px] text-sage-light uppercase tracking-widest">Admin Panel</p>
+            <p className="font-serif text-sm text-white font-semibold">
+              Collins
+            </p>
+            <p className="text-[10px] text-sage-light uppercase tracking-widest">
+              Admin Panel
+            </p>
           </div>
         </Link>
       </div>
@@ -59,8 +98,8 @@ export default function AdminSidebar() {
               href={href}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 active
-                  ? 'bg-sage/20 text-white border border-sage/20'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
+                  ? "bg-sage/20 text-white border border-sage/20"
+                  : "text-white/50 hover:text-white hover:bg-white/5"
               }`}
             >
               <Icon className="w-4 h-4 shrink-0" />
@@ -79,7 +118,7 @@ export default function AdminSidebar() {
           className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-white/40 hover:text-white hover:bg-white/5 text-sm transition-colors disabled:opacity-50"
         >
           <Database className="w-4 h-4 shrink-0" />
-          {seeding ? 'Seeding…' : seedMsg || 'Seed Sample Data'}
+          {seeding ? "Seeding…" : seedMsg || "Seed Sample Data"}
         </button>
 
         <Link

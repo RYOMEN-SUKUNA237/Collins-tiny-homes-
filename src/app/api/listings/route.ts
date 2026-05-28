@@ -1,24 +1,30 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getAllListings, createListing } from '@/lib/db';
-import { v4 as uuidv4 } from 'uuid';
+import { NextRequest, NextResponse } from "next/server";
+import { getAllListings, createListing } from "@/lib/db";
+import { v4 as uuidv4 } from "uuid";
 
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
     const filters = {
-      priceType: searchParams.get('priceType') || undefined,
-      homeType: searchParams.get('homeType') || undefined,
-      minOffGrid: searchParams.has('minOffGrid') ? parseInt(searchParams.get('minOffGrid')!) : undefined,
-      status: searchParams.get('status') || undefined,
-      search: searchParams.get('search') || undefined,
+      priceType: searchParams.get("priceType") || undefined,
+      homeType: searchParams.get("homeType") || undefined,
+      minOffGrid: searchParams.has("minOffGrid")
+        ? parseInt(searchParams.get("minOffGrid")!)
+        : undefined,
+      status: searchParams.get("status") || undefined,
+      search: searchParams.get("search") || undefined,
     };
 
     const listings = await getAllListings(filters);
-    
+
     // Parse JSON amenities and other specs
-    const parsedListings = listings.map((l: any) => ({
+    const parsedListings = listings.map((l) => ({
       ...l,
-      amenities: l.amenities ? (typeof l.amenities === 'string' ? JSON.parse(l.amenities) : l.amenities) : [],
+      amenities: l.amenities
+        ? typeof l.amenities === "string"
+          ? JSON.parse(l.amenities)
+          : l.amenities
+        : [],
       images: [l.cover_image], // To align with frontend expected mock structure temporarily
       specs: {
         solarWattage: l.solar_wattage,
@@ -43,8 +49,11 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(parsedListings);
   } catch (error) {
-    console.error('Error fetching listings:', error);
-    return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 });
+    console.error("Error fetching listings:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch listings" },
+      { status: 500 },
+    );
   }
 }
 
@@ -52,7 +61,7 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
     const newId = uuidv4();
-    
+
     const dbData = {
       id: newId,
       title: data.title,
@@ -79,7 +88,7 @@ export async function POST(req: NextRequest) {
       grey_water_system: data.specs?.greyWaterSystem ? 1 : 0,
       amenities: JSON.stringify(data.amenities || []),
       is_featured: data.isFeatured ? 1 : 0,
-      status: data.status || 'active',
+      status: data.status || "active",
       down_payment_pct: data.downPaymentPct || null,
       monthly_rent: data.monthlyRent || null,
       delivery_fee: data.deliveryFee || null,
@@ -87,10 +96,13 @@ export async function POST(req: NextRequest) {
     };
 
     await createListing(dbData);
-    
+
     return NextResponse.json({ success: true, id: newId });
   } catch (error) {
-    console.error('Error creating listing:', error);
-    return NextResponse.json({ error: 'Failed to create listing' }, { status: 500 });
+    console.error("Error creating listing:", error);
+    return NextResponse.json(
+      { error: "Failed to create listing" },
+      { status: 500 },
+    );
   }
 }

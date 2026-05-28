@@ -1,24 +1,33 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getListingById, updateListing, deleteListing, getListingImages } from '@/lib/db';
+import { NextRequest, NextResponse } from "next/server";
+import {
+  getListingById,
+  updateListing,
+  deleteListing,
+  getListingImages,
+} from "@/lib/db";
 
 export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const p = await params;
-    const listing: any = await getListingById(p.id);
-    
+    const listing = await getListingById(p.id);
+
     if (!listing) {
-      return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
+      return NextResponse.json({ error: "Listing not found" }, { status: 404 });
     }
 
     const dbImages = await getListingImages(p.id);
-    const images = [listing.cover_image, ...dbImages.map((i: any) => i.url)];
+    const images = [listing.cover_image, ...dbImages.map((i) => i.url)];
 
     const parsedListing = {
       ...listing,
-      amenities: listing.amenities ? (typeof listing.amenities === 'string' ? JSON.parse(listing.amenities) : listing.amenities) : [],
+      amenities: listing.amenities
+        ? typeof listing.amenities === "string"
+          ? JSON.parse(listing.amenities)
+          : listing.amenities
+        : [],
       images: Array.from(new Set(images)), // remove duplicates if cover is in images
       specs: {
         solarWattage: listing.solar_wattage,
@@ -44,20 +53,23 @@ export async function GET(
 
     return NextResponse.json(parsedListing);
   } catch (error) {
-    console.error('Error fetching listing:', error);
-    return NextResponse.json({ error: 'Failed to fetch listing' }, { status: 500 });
+    console.error("Error fetching listing:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch listing" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const p = await params;
     const data = await req.json();
-    
-    const dbData: Record<string, any> = {};
+
+    const dbData: Record<string, unknown> = {};
     if (data.title !== undefined) dbData.title = data.title;
     if (data.description !== undefined) dbData.description = data.description;
     if (data.price !== undefined) dbData.price = data.price;
@@ -71,44 +83,63 @@ export async function PUT(
     if (data.coordinates?.lng !== undefined) dbData.lng = data.coordinates.lng;
     if (data.coverImage !== undefined) dbData.cover_image = data.coverImage;
     if (data.homeType !== undefined) dbData.home_type = data.homeType;
-    if (data.offGridScore !== undefined) dbData.off_grid_score = data.offGridScore;
-    if (data.specs?.solarWattage !== undefined) dbData.solar_wattage = data.specs.solarWattage;
-    if (data.specs?.waterSystem !== undefined) dbData.water_system = data.specs.waterSystem;
-    if (data.specs?.insulationRValue !== undefined) dbData.insulation_r_value = data.specs.insulationRValue;
-    if (data.specs?.toiletType !== undefined) dbData.toilet_type = data.specs.toiletType;
-    if (data.specs?.loftCount !== undefined) dbData.loft_count = data.specs.loftCount;
-    if (data.specs?.heatingType !== undefined) dbData.heating_type = data.specs.heatingType;
-    if (data.specs?.rainwaterCollection !== undefined) dbData.rainwater_collection = data.specs.rainwaterCollection ? 1 : 0;
-    if (data.specs?.greyWaterSystem !== undefined) dbData.grey_water_system = data.specs.greyWaterSystem ? 1 : 0;
-    if (data.amenities !== undefined) dbData.amenities = JSON.stringify(data.amenities);
-    if (data.isFeatured !== undefined) dbData.is_featured = data.isFeatured ? 1 : 0;
+    if (data.offGridScore !== undefined)
+      dbData.off_grid_score = data.offGridScore;
+    if (data.specs?.solarWattage !== undefined)
+      dbData.solar_wattage = data.specs.solarWattage;
+    if (data.specs?.waterSystem !== undefined)
+      dbData.water_system = data.specs.waterSystem;
+    if (data.specs?.insulationRValue !== undefined)
+      dbData.insulation_r_value = data.specs.insulationRValue;
+    if (data.specs?.toiletType !== undefined)
+      dbData.toilet_type = data.specs.toiletType;
+    if (data.specs?.loftCount !== undefined)
+      dbData.loft_count = data.specs.loftCount;
+    if (data.specs?.heatingType !== undefined)
+      dbData.heating_type = data.specs.heatingType;
+    if (data.specs?.rainwaterCollection !== undefined)
+      dbData.rainwater_collection = data.specs.rainwaterCollection ? 1 : 0;
+    if (data.specs?.greyWaterSystem !== undefined)
+      dbData.grey_water_system = data.specs.greyWaterSystem ? 1 : 0;
+    if (data.amenities !== undefined)
+      dbData.amenities = JSON.stringify(data.amenities);
+    if (data.isFeatured !== undefined)
+      dbData.is_featured = data.isFeatured ? 1 : 0;
     if (data.status !== undefined) dbData.status = data.status;
-    if (data.downPaymentPct !== undefined) dbData.down_payment_pct = data.downPaymentPct;
+    if (data.downPaymentPct !== undefined)
+      dbData.down_payment_pct = data.downPaymentPct;
     if (data.monthlyRent !== undefined) dbData.monthly_rent = data.monthlyRent;
     if (data.deliveryFee !== undefined) dbData.delivery_fee = data.deliveryFee;
-    if (data.financeTermMonths !== undefined) dbData.finance_term_months = data.financeTermMonths;
+    if (data.financeTermMonths !== undefined)
+      dbData.finance_term_months = data.financeTermMonths;
 
     if (Object.keys(dbData).length > 0) {
       await updateListing(p.id, dbData);
     }
-    
+
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error updating listing:', error);
-    return NextResponse.json({ error: 'Failed to update listing' }, { status: 500 });
+    console.error("Error updating listing:", error);
+    return NextResponse.json(
+      { error: "Failed to update listing" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const p = await params;
     await deleteListing(p.id);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting listing:', error);
-    return NextResponse.json({ error: 'Failed to delete listing' }, { status: 500 });
+    console.error("Error deleting listing:", error);
+    return NextResponse.json(
+      { error: "Failed to delete listing" },
+      { status: 500 },
+    );
   }
 }

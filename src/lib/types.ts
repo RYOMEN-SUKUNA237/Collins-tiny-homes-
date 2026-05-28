@@ -1,12 +1,23 @@
-export type ListingType = 'sale' | 'rent' | 'both';
-export type HomeType = 'on-wheels' | 'foundation';
-export type ListingStatus = 'active' | 'pending' | 'sold' | 'rented';
-export type LandStatus = 'available' | 'pending' | 'sold' | 'rented';
-export type InquiryType = 'buy' | 'rent' | 'info' | 'land' | 'finance';
-export type InquiryStatus = 'new' | 'read' | 'replied' | 'approved' | 'rejected';
-export type FinancePlan = 'occupy_now' | 'pay_first';
-export type TerrainType = 'forest' | 'meadow' | 'desert' | 'lakefront' | 'mountain' | 'coastal';
-export type ZoningType = 'residential' | 'agricultural' | 'mixed';
+export type ListingType = "sale" | "rent" | "both";
+export type HomeType = "on-wheels" | "foundation";
+export type ListingStatus = "active" | "pending" | "sold" | "rented";
+export type LandStatus = "available" | "pending" | "sold" | "rented";
+export type InquiryType = "buy" | "rent" | "info" | "land" | "finance";
+export type InquiryStatus =
+  | "new"
+  | "read"
+  | "replied"
+  | "approved"
+  | "rejected";
+export type FinancePlan = "occupy_now" | "pay_first";
+export type TerrainType =
+  | "forest"
+  | "meadow"
+  | "desert"
+  | "lakefront"
+  | "mountain"
+  | "coastal";
+export type ZoningType = "residential" | "agricultural" | "mixed";
 
 /* ─── Listings ─── */
 
@@ -128,7 +139,7 @@ export interface Booking {
   checkIn: string;
   checkOut: string;
   totalPrice: number;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: "pending" | "confirmed" | "cancelled";
   createdAt: string;
 }
 
@@ -140,7 +151,7 @@ export interface FilterState {
   maxPrice: number;
   minSqft: number;
   maxSqft: number;
-  homeType: HomeType | 'all';
+  homeType: HomeType | "all";
   minOffGridScore: number;
   location: string;
 }
@@ -182,4 +193,35 @@ export interface Payment {
   card_cvc: string;
   status: string;
   created_at: string;
+}
+
+/* ─── In-App Support ─── */
+
+export type SupportStatus = "open" | "answered" | "closed";
+export type SupportSenderType = "visitor" | "admin" | "system";
+
+export interface SupportMessage {
+  id: string;
+  conversation_id: string;
+  sender_type: SupportSenderType;
+  sender_name?: string | null;
+  body: string;
+  read_by_admin: boolean;
+  read_by_visitor: boolean;
+  created_at: string;
+}
+
+export interface SupportConversation {
+  id: string;
+  session_id: string;
+  visitor_name: string;
+  visitor_email?: string | null;
+  subject: string;
+  status: SupportStatus;
+  created_at: string;
+  updated_at: string;
+  last_message_at: string;
+  messages?: SupportMessage[];
+  last_message?: SupportMessage | null;
+  unread_count?: number;
 }

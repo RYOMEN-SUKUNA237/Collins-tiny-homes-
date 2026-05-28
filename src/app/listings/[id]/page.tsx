@@ -8,6 +8,7 @@ import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 import OffGridBadge from '@/components/home/OffGridBadge';
 import ListingActions from '@/components/home/ListingActions';
+import ImageGallery from '@/components/home/ImageGallery';
 import {
   MapPin, Maximize2, Bed, Bath, Zap, Droplets, Thermometer,
   Trash2, ChevronLeft, Sun, Home,
@@ -77,32 +78,7 @@ export default async function ListingDetailPage({
             {/* Left: Main Content */}
             <div className="lg:col-span-2 space-y-8">
               {/* Image Gallery */}
-              {allImages.length > 0 && (
-                <div className="grid grid-cols-2 gap-3 rounded-2xl overflow-hidden">
-                  <div className="col-span-2 relative h-80 md:h-96 bg-offwhite-dark">
-                    {allImages[0] && (
-                      <Image
-                        src={allImages[0]}
-                        alt={listing.title}
-                        fill
-                        className="object-cover"
-                        unoptimized={allImages[0].startsWith('https://images.unsplash.com')}
-                      />
-                    )}
-                  </div>
-                  {allImages.slice(1, 3).map((src, i) => (
-                    <div key={i} className="relative h-48 bg-offwhite-dark">
-                      <Image
-                        src={src}
-                        alt={`${listing.title} view ${i + 2}`}
-                        fill
-                        className="object-cover"
-                        unoptimized={src.startsWith('https://images.unsplash.com')}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
+              <ImageGallery images={allImages} title={listing.title} />
 
               {/* Header */}
               <div>
