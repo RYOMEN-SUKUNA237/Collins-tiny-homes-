@@ -4,14 +4,16 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X, Target, MapPin, Landmark, ArrowRight, ArrowLeft,
-  DollarSign, Check, Phone, Mail, User, ShieldAlert
+  DollarSign, Check, Phone, Mail, User,
+  MessageCircle, Edit3, Send, Loader2
 } from 'lucide-react';
-import Image from 'next/image';
+import { getDeterministicShippingFee } from '@/lib/shipping';
 
 interface DiscoveryWizardProps {
   listingId: string;
   listingTitle: string;
   price: number;
+  homeType: string;
   onClose: () => void;
   onProceedToPayment: (paymentType: 'full_purchase' | 'down_payment' | 'monthly_rent', amount: number, meta: {
     goal: string;
@@ -21,13 +23,23 @@ interface DiscoveryWizardProps {
     termMonths: number;
     shippingFee: number;
     shippingAddress: string;
+    isRentToOwn: boolean;
+    isRent?: boolean;
   }) => void;
+}
+
+function generateSupportMessage(name: string, listingTitle: string, landStatus: 'looking' | 'none') {
+  const intro = landStatus === 'looking'
+    ? `Hi, my name is ${name || '[Your Name]'}. I am interested in the "${listingTitle}" and I am currently searching for a suitable land parcel to place it on.`
+    : `Hi, my name is ${name || '[Your Name]'}. I am interested in the "${listingTitle}" but I have not yet found a land parcel to place it on.`;
+  return `${intro} I would love to discuss my options with your team — including available land parcels, placement logistics, zoning support, and any land-lease arrangements you may offer. Please reach out at your earliest convenience. Thank you!`;
 }
 
 export default function DiscoveryWizard({
   listingId,
   listingTitle,
   price,
+  homeType,
   onClose,
   onProceedToPayment,
 }: DiscoveryWizardProps) {
@@ -46,34 +58,90 @@ export default function DiscoveryWizard({
   const [agentForm, setAgentForm] = useState({ name: '', email: '', phone: '' });
   const [agentSubmitted, setAgentSubmitted] = useState(false);
 
+  // Land Support Flow State
+  const [supportModal, setSupportModal] = useState(false);
+  const [supportStep, setSupportStep] = useState<'prompt' | 'form' | 'sent'>('prompt');
+  const [supportForm, setSupportForm] = useState({ name: '', email: '' });
+  const [supportMessage, setSupportMessage] = useState('');
+  const [supportSending, setSupportSending] = useState(false);
+  const [pendingLandStatus, setPendingLandStatus] = useState<'looking' | 'none'>('looking');
+
   // Step 3 State: Financials
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'financing' | 'deposit'>('financing');
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'financing' | 'rent_to_own' | 'deposit' | 'rent'>('financing');
   const [termMonths, setTermMonths] = useState(36); // Default 3-year term
 
-  // Simulated Google Autocomplete matching regional agents
-  const MOCK_ADDRESSES = [
-    { name: '123 Pine St, Seattle, WA', lat: 47.6062, lng: -122.3321, distance: 10, serviced: true },
-    { name: '456 Oak Ave, Denver, CO', lat: 39.7392, lng: -104.9903, distance: 45, serviced: true },
-    { name: '789 Maple Rd, Austin, TX', lat: 30.2672, lng: -97.7431, distance: 120, serviced: true },
-    { name: '321 Elm Blvd, Atlanta, GA', lat: 33.7490, lng: -84.3880, distance: 280, serviced: true },
-    { name: '555 Cedar Ln, Boston, MA', lat: 42.3601, lng: -71.0589, distance: 15, serviced: true },
-    { name: '999 Forbidden Sands Rd, Anchorage, AK', lat: 61.2181, lng: -149.9003, distance: 2000, serviced: false }
-  ];
-
-  const handleAddressSelect = (addr: string) => {
+  const handleAddressChange = (addr: string) => {
     setAddress(addr);
-    const matched = MOCK_ADDRESSES.find(a => a.name === addr) || {
-      name: addr, lat: 41.8781, lng: -87.6298, distance: 400, serviced: true
-    };
-    
-    if (!matched.serviced) {
-      setServiced(false);
+    if (!addr.trim()) {
       setShippingFee(0);
     } else {
-      setServiced(true);
-      // Delivery fee is calculated as $1500 base + $3.50 per mile
-      const fee = 1500 + matched.distance * 3.50;
+      const fee = getDeterministicShippingFee(addr, homeType);
       setShippingFee(fee);
+    }
+  };
+
+  const handleLandStatusChange = (status: 'owns' | 'looking' | 'none') => {
+    setLandOwnership(status);
+    if (status === 'looking' || status === 'none') {
+      setPendingLandStatus(status);
+      setSupportStep('prompt');
+      setSupportModal(true);
+    }
+  };
+
+  const handleSupportPromptYes = () => {
+    // Pre-fill message based on what we know
+    setSupportMessage(generateSupportMessage(supportForm.name, listingTitle, pendingLandStatus));
+    setSupportStep('form');
+  };
+
+  const handleSupportPromptNo = () => {
+    setSupportModal(false);
+  };
+
+  const handleSupportFormChange = (field: 'name' | 'email', value: string) => {
+    const updated = { ...supportForm, [field]: value };
+    setSupportForm(updated);
+    // Regenerate message when name changes
+    if (field === 'name') {
+      setSupportMessage(generateSupportMessage(value, listingTitle, pendingLandStatus));
+    }
+  };
+
+  const handleSupportSend = async () => {
+    if (!supportForm.name || !supportForm.email) return;
+    setSupportSending(true);
+    try {
+      // Create a support conversation directly
+      const res = await fetch('/api/support/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          visitorName: supportForm.name,
+          visitorEmail: supportForm.email,
+          subject: `Land Search Inquiry — ${listingTitle}`,
+          sessionId: `wizard-${Date.now()}`,
+          initialMessage: supportMessage,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        // Store in localStorage so the SupportWidget picks it up
+        if (data?.id) {
+          window.localStorage.setItem('collins_support_conversation_id', data.id);
+          window.localStorage.setItem('collins_support_visitor_name', supportForm.name);
+          window.localStorage.setItem('collins_support_visitor_email', supportForm.email);
+          // Dispatch custom event to open the support widget
+          window.dispatchEvent(new CustomEvent('open-support-chat', { detail: { conversationId: data.id } }));
+        }
+      }
+      setSupportStep('sent');
+    } catch (err) {
+      console.error('Support conversation error:', err);
+      setSupportStep('sent'); // Still show success to user
+    } finally {
+      setSupportSending(false);
     }
   };
 
@@ -103,14 +171,22 @@ export default function DiscoveryWizard({
   };
 
   // Calculations for Financial roadmap
-  const downPayment = price * 0.20; // 20% down
+  const downPayment = price * 0.10; // 10% down
   const loanAmount = price - downPayment;
   const financingMonthly = loanAmount / termMonths;
   const cashTotal = price + shippingFee;
 
+  // Rent-to-Own math
+  const rtoDownPayment = price * 0.10;
+  const rtoMonthlyRent = price * 0.012;
+  const rtoMonthlyEquity = (price * 0.90) / termMonths;
+  const rtoTotalMonthly = rtoMonthlyRent + rtoMonthlyEquity;
+
   const handleFinishWizard = () => {
     let finalType: 'full_purchase' | 'down_payment' | 'monthly_rent' = 'down_payment';
     let finalAmount = downPayment;
+    const isRentToOwn = paymentMethod === 'rent_to_own';
+    const isRent = paymentMethod === 'rent';
 
     if (paymentMethod === 'cash') {
       finalType = 'full_purchase';
@@ -118,6 +194,12 @@ export default function DiscoveryWizard({
     } else if (paymentMethod === 'deposit') {
       finalType = 'down_payment';
       finalAmount = 2500; // Flat reservation deposit
+    } else if (paymentMethod === 'rent_to_own') {
+      finalType = 'monthly_rent';
+      finalAmount = rtoDownPayment; // Option deposit
+    } else if (paymentMethod === 'rent') {
+      finalType = 'monthly_rent';
+      finalAmount = (price * 0.012 * 3) + 1500;
     } else {
       finalType = 'down_payment';
       finalAmount = downPayment;
@@ -130,7 +212,9 @@ export default function DiscoveryWizard({
       paymentMethod,
       termMonths,
       shippingFee,
-      shippingAddress: address
+      shippingAddress: address,
+      isRentToOwn,
+      isRent,
     });
   };
 
@@ -258,12 +342,7 @@ export default function DiscoveryWizard({
                   ].map((l) => (
                     <button
                       key={l.id}
-                      onClick={() => {
-                        setLandOwnership(l.id as any);
-                        if (l.id === 'none') {
-                          setAgentModal(true);
-                        }
-                      }}
+                      onClick={() => handleLandStatusChange(l.id as any)}
                       className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-colors ${
                         landOwnership === l.id 
                           ? 'border-sage bg-sage/5 text-sage-dark' 
@@ -274,67 +353,53 @@ export default function DiscoveryWizard({
                     </button>
                   ))}
                 </div>
-              </div>
 
-              {/* SHIPPING ESTIMATION / GOOGLE MAPS AUTOCOMPLETE */}
-              <div className="space-y-3 p-5 bg-sage/5 border border-sage/10 rounded-2xl">
-                <h4 className="font-serif font-bold text-charcoal text-sm flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-sage" /> Delivery Address & Shipping Quote
-                </h4>
-                <p className="text-xs text-charcoal-light">
-                  Input your delivery region to calculate professional shipping fees.
-                </p>
-
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Enter shipping address..."
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-sage/20 bg-white text-sm outline-none text-charcoal focus:border-sage"
-                  />
-                  {address && !MOCK_ADDRESSES.map(a => a.name).includes(address) && (
-                    <div className="absolute top-full left-0 right-0 bg-white border border-sage/15 rounded-xl shadow-xl mt-1.5 overflow-hidden z-20">
-                      {MOCK_ADDRESSES.map((m) => (
-                        <button
-                          key={m.name}
-                          onClick={() => handleAddressSelect(m.name)}
-                          className="w-full text-left px-4 py-2.5 hover:bg-sage/5 text-xs text-charcoal border-b border-sage/5 last:border-b-0"
-                        >
-                          {m.name}
-                        </button>
-                      ))}
+                {/* Info banner when land status is not "owns" */}
+                {(landOwnership === 'looking' || landOwnership === 'none') && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2.5 items-start">
+                    <MessageCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-bold text-amber-900">Our team can help with land placement</p>
+                      <p className="text-[11px] text-amber-800 leading-relaxed mt-0.5">
+                        We have access to a network of vetted land parcels and lease options in most regions.
+                      </p>
+                      <button
+                        onClick={() => { setPendingLandStatus(landOwnership as 'looking' | 'none'); setSupportStep('prompt'); setSupportModal(true); }}
+                        className="mt-1.5 text-xs font-bold text-amber-900 underline"
+                      >
+                        Talk to our support team →
+                      </button>
                     </div>
-                  )}
-                </div>
-
-                {address && (
-                  <div className="mt-4 pt-3 border-t border-sage/10">
-                    {serviced ? (
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-charcoal-light">Estimated Delivery Fee:</span>
-                        <span className="font-serif font-bold text-sage-dark">${shippingFee.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                      </div>
-                    ) : (
-                      <div className="bg-red-50 border border-red-200 rounded-xl p-3.5 flex gap-2.5">
-                        <ShieldAlert className="w-5 h-5 text-red-500 shrink-0" />
-                        <div>
-                          <p className="text-xs font-bold text-red-800">Unserviced Delivery Zone</p>
-                          <p className="text-[11px] text-red-700 mt-0.5 leading-relaxed">
-                            We do not currently offer automated self-delivery to this location. You must connect with a regional agent to secure private logistics.
-                          </p>
-                          <button
-                            onClick={() => setAgentModal(true)}
-                            className="mt-2 text-xs font-bold text-red-800 underline hover:text-red-950"
-                          >
-                            Assign Regional Agent &rarr;
-                          </button>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
+
+              {/* I OWN LAND — show address input for location */}
+              {landOwnership === 'owns' && (
+                <div className="space-y-3 p-5 bg-sage/5 border border-sage/10 rounded-2xl">
+                  <h4 className="font-serif font-bold text-charcoal text-sm flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-sage" /> Land Location & Delivery Quote
+                  </h4>
+                  <p className="text-xs text-charcoal-light">
+                    Enter your land's address or delivery region to get an instant shipping fee estimate ($1,500 flat).
+                  </p>
+
+                  <input
+                    type="text"
+                    placeholder="Enter your delivery address..."
+                    value={address}
+                    onChange={(e) => handleAddressChange(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-sage/20 bg-white text-sm outline-none text-charcoal focus:border-sage"
+                  />
+
+                  {address && shippingFee > 0 && (
+                    <div className="mt-1 pt-3 border-t border-sage/10 flex items-center justify-between text-sm">
+                      <span className="text-charcoal-light">Estimated Delivery Fee:</span>
+                      <span className="font-serif font-bold text-sage-dark">${shippingFee.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -350,11 +415,13 @@ export default function DiscoveryWizard({
               </div>
 
               {/* PAYMENT METHOD CARDS */}
-              <div className="grid md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 {[
                   { id: 'cash', title: '100% Full Pay', desc: 'Secure direct purchase. Best pricing, no finance fees.' },
-                  { id: 'financing', title: 'Term Financing', desc: 'Spread balance over customizable low monthly fees.' },
-                  { id: 'deposit', title: 'Reserve Slot', desc: 'Hold this unit today with a small security deposit.' }
+                  { id: 'financing', title: 'Term Financing', desc: 'Spread balance over customizable monthly payments.' },
+                  { id: 'rent_to_own', title: 'Rent-to-Own', desc: 'Rent and build equity until you fully own the home.' },
+                  { id: 'rent', title: 'Strict Rent', desc: 'Pay 3 months rent + $1,500 delivery upfront, then rent monthly.' },
+                  { id: 'deposit', title: 'Reserve Slot', desc: 'Hold this unit today with a $2,500 security deposit.' }
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -363,7 +430,7 @@ export default function DiscoveryWizard({
                       paymentMethod === item.id 
                         ? 'border-sage bg-sage/5' 
                         : 'border-sage/15 bg-white hover:border-sage/35'
-                    }`}
+                    } ${item.id === 'deposit' ? 'col-span-2' : ''}`}
                   >
                     <div>
                       <h4 className="font-bold text-charcoal text-sm mb-1">{item.title}</h4>
@@ -398,7 +465,7 @@ export default function DiscoveryWizard({
                         <span>${price.toLocaleString()}</span>
                       </div>
                       <div className="flex items-center justify-between text-xs text-charcoal-light">
-                        <span>Down Payment Required (20%)</span>
+                        <span>Down Payment Required (10%)</span>
                         <span>${downPayment.toLocaleString()}</span>
                       </div>
                       {shippingFee > 0 && (
@@ -423,12 +490,70 @@ export default function DiscoveryWizard({
                     </div>
                     <div className="flex justify-between text-charcoal-light">
                       <span>Shipping/Logistics Quote:</span>
-                      <span>${shippingFee.toLocaleString()}</span>
+                      <span>${shippingFee > 0 ? shippingFee.toLocaleString(undefined, { maximumFractionDigits: 0 }) : 'TBD'}</span>
                     </div>
                     <div className="flex justify-between font-bold text-charcoal pt-3 border-t border-sage/10">
                       <span>Total Purchase Obligation:</span>
-                      <span className="font-serif text-lg text-sage-dark">${cashTotal.toLocaleString()}</span>
+                      <span className="font-serif text-lg text-sage-dark">${cashTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                     </div>
+                  </div>
+                )}
+
+                {paymentMethod === 'rent_to_own' && (
+                  <div className="space-y-2.5 text-xs">
+                    <div className="flex justify-between text-charcoal-light">
+                      <span>Total Home Value</span>
+                      <span>${price.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-charcoal-light">
+                      <span>Option Deposit (10%)</span>
+                      <span>${rtoDownPayment.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-charcoal-light">
+                      <span>Base Monthly Rent</span>
+                      <span>${rtoMonthlyRent.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
+                    </div>
+                    <div className="flex justify-between text-charcoal-light">
+                      <span>Monthly Equity Builder</span>
+                      <span>${rtoMonthlyEquity.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
+                    </div>
+                    <div className="h-px bg-sage/10 my-1" />
+                    <div className="flex justify-between font-bold text-charcoal">
+                      <span>Total Monthly Payment</span>
+                      <span className="font-serif text-lg text-sage-dark">${rtoTotalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
+                    </div>
+                    <p className="text-[10px] text-charcoal-light mt-1 leading-relaxed">
+                      Equity accumulates each month. Own the home outright after {termMonths} months.
+                    </p>
+                  </div>
+                )}
+
+                {paymentMethod === 'rent' && (
+                  <div className="space-y-2.5 text-xs">
+                    <div className="flex justify-between text-charcoal-light">
+                      <span>Tiny Home Base Cost:</span>
+                      <span>${price.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-charcoal-light">
+                      <span>Monthly Rent (1.2%):</span>
+                      <span>${Math.round(price * 0.012).toLocaleString()}/mo</span>
+                    </div>
+                    <div className="flex justify-between text-charcoal-light">
+                      <span>3 Months Upfront Rent:</span>
+                      <span>${Math.round(price * 0.012 * 3).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-charcoal-light">
+                      <span>Logistics Shipping/Delivery Fee:</span>
+                      <span>$1,500</span>
+                    </div>
+                    <div className="h-px bg-sage/10 my-1" />
+                    <div className="flex justify-between font-bold text-charcoal">
+                      <span>Total Upfront Due Now:</span>
+                      <span className="font-serif text-lg text-sage-dark">${Math.round(price * 0.012 * 3 + 1500).toLocaleString()}</span>
+                    </div>
+                    <p className="text-[10px] text-charcoal-light mt-1 leading-relaxed">
+                      You are choosing strict monthly rental. Pay 3 months upfront + delivery fee today, then standard monthly rent of ${Math.round(price * 0.012).toLocaleString()}/mo.
+                    </p>
                   </div>
                 )}
 
@@ -478,6 +603,163 @@ export default function DiscoveryWizard({
           )}
         </div>
       </div>
+
+      {/* ═══════════════════════════════════════════════
+          LAND SUPPORT MODAL — Talk to Support flow
+      ════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {supportModal && (
+          <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-charcoal/80" onClick={() => setSupportModal(false)} />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
+              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-sage/15 z-10 overflow-hidden"
+            >
+              <div className="h-1 w-full bg-gradient-to-r from-sage to-clay" />
+              <div className="p-8 space-y-5">
+
+                {/* PROMPT STEP */}
+                {supportStep === 'prompt' && (
+                  <>
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-2xl bg-sage/10 flex items-center justify-center shrink-0">
+                        <MessageCircle className="w-6 h-6 text-sage" />
+                      </div>
+                      <div>
+                        <h3 className="font-serif text-lg text-charcoal font-semibold">
+                          {pendingLandStatus === 'looking' ? "Still searching for land?" : "Haven't found land yet?"}
+                        </h3>
+                        <p className="text-xs text-charcoal-light mt-1 leading-relaxed">
+                          {pendingLandStatus === 'looking'
+                            ? "No worries — our support team has access to vetted land parcels and lease options across all regions. Would you like us to help you find the right spot?"
+                            : "Our specialists can connect you with available land parcels, zoning support, and lease-to-own land arrangements. Want to start a conversation?"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={handleSupportPromptYes}
+                        className="flex-1 py-3.5 rounded-2xl bg-sage hover:bg-sage-dark text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md shadow-sage/20"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Yes, let's talk!
+                      </button>
+                      <button
+                        onClick={handleSupportPromptNo}
+                        className="flex-1 py-3.5 rounded-2xl border border-sage/20 bg-white text-charcoal font-semibold text-sm hover:border-sage/40 transition-colors"
+                      >
+                        No, continue
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* FORM STEP */}
+                {supportStep === 'form' && (
+                  <>
+                    <div>
+                      <h3 className="font-serif text-lg text-charcoal font-semibold flex items-center gap-2">
+                        <MessageCircle className="w-5 h-5 text-sage" />
+                        Draft Your Message
+                      </h3>
+                      <p className="text-xs text-charcoal-light mt-1">
+                        We've written a message for you — feel free to edit it before sending.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3.5">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Your Full Name *"
+                          required
+                          value={supportForm.name}
+                          onChange={(e) => handleSupportFormChange('name', e.target.value)}
+                          className="w-full px-4 py-3 rounded-xl border border-sage/15 text-xs outline-none focus:border-sage pl-10"
+                        />
+                        <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal-light/40" />
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="email"
+                          placeholder="Your Email Address *"
+                          required
+                          value={supportForm.email}
+                          onChange={(e) => handleSupportFormChange('email', e.target.value)}
+                          className="w-full px-4 py-3 rounded-xl border border-sage/15 text-xs outline-none focus:border-sage pl-10"
+                        />
+                        <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal-light/40" />
+                      </div>
+
+                      {/* Editable message */}
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] uppercase tracking-wider text-charcoal-light font-bold flex items-center gap-1.5">
+                          <Edit3 className="w-3 h-3" /> Your Message (editable)
+                        </label>
+                        <textarea
+                          rows={5}
+                          value={supportMessage}
+                          onChange={(e) => setSupportMessage(e.target.value)}
+                          className="w-full px-4 py-3 rounded-xl border border-sage/15 text-xs outline-none focus:border-sage resize-none leading-relaxed text-charcoal"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setSupportStep('prompt')}
+                        className="px-5 py-3 rounded-xl border border-sage/20 text-charcoal text-xs font-semibold hover:border-sage/40 transition-colors flex items-center gap-1.5"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" /> Back
+                      </button>
+                      <button
+                        onClick={handleSupportSend}
+                        disabled={!supportForm.name || !supportForm.email || supportSending}
+                        className="flex-1 py-3 rounded-xl bg-sage hover:bg-sage-dark text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md shadow-sage/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {supportSending ? (
+                          <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
+                        ) : (
+                          <><Send className="w-4 h-4" /> Send to Support</>
+                        )}
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* SENT STEP */}
+                {supportStep === 'sent' && (
+                  <div className="text-center space-y-5 py-4">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                      className="w-16 h-16 rounded-full bg-sage/15 border-4 border-sage/25 flex items-center justify-center mx-auto"
+                    >
+                      <Check className="w-8 h-8 text-sage" />
+                    </motion.div>
+                    <div>
+                      <h4 className="font-serif font-bold text-charcoal text-base">Message Sent!</h4>
+                      <p className="text-xs text-charcoal-light mt-1.5 leading-relaxed max-w-xs mx-auto">
+                        Your inquiry has been received. A support specialist will respond shortly. Check the live chat bubble at the bottom of your screen.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => { setSupportModal(false); onClose(); }}
+                      className="px-6 py-3 rounded-xl bg-sage hover:bg-sage-dark text-white text-xs font-bold transition-all shadow-md shadow-sage/20"
+                    >
+                      Open Support Chat
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Regional Agent Modal Overlay */}
       <AnimatePresence>

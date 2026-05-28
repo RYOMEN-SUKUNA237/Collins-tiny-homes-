@@ -26,7 +26,7 @@ export function dbRowToListing(row: any): Listing {
     homeType: row.home_type,
     offGridScore: row.off_grid_score ?? 0,
     specs: {
-      solarWattage: row.solar_wattage ?? undefined,
+      solarWattage: row.solar_wattage ?? (row.price > 29000 ? 1600 : undefined),
       waterSystem: row.water_system ?? undefined,
       insulationRValue: row.insulation_r_value ?? undefined,
       toiletType: row.toilet_type ?? undefined,
@@ -42,10 +42,10 @@ export function dbRowToListing(row: any): Listing {
     })(),
     isFeatured: !!row.is_featured,
     status: row.status ?? 'active',
-    downPaymentPct: row.down_payment_pct ?? undefined,
-    monthlyRent: row.monthly_rent ?? undefined,
+    downPaymentPct: row.down_payment_pct ?? 10,
+    monthlyRent: row.monthly_rent ?? (row.price ? Math.round(row.price * 0.012) : undefined),
     deliveryFee: row.delivery_fee ?? undefined,
-    financeTermMonths: row.finance_term_months ?? undefined,
+    financeTermMonths: row.finance_term_months ?? 36,
     createdAt: row.created_at ?? new Date().toISOString(),
   };
 }

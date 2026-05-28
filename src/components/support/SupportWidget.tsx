@@ -98,6 +98,24 @@ export default function SupportWidget() {
       name: window.localStorage.getItem(NAME_KEY) || "",
       email: window.localStorage.getItem(EMAIL_KEY) || "",
     }));
+
+    const handleOpenSupport = (e: any) => {
+      const convId = e.detail?.conversationId;
+      if (convId) {
+        setConversationId(convId);
+        setForm((prev) => ({
+          ...prev,
+          name: window.localStorage.getItem(NAME_KEY) || prev.name,
+          email: window.localStorage.getItem(EMAIL_KEY) || prev.email,
+        }));
+        setIsOpen(true);
+      }
+    };
+
+    window.addEventListener('open-support-chat', handleOpenSupport);
+    return () => {
+      window.removeEventListener('open-support-chat', handleOpenSupport);
+    };
   }, []);
 
   const sortedMessages = useMemo(

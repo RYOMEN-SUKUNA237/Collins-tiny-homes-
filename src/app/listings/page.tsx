@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 interface ListingsPageProps {
-  searchParams: Promise<{ type?: string; homeType?: string; minOffGrid?: string }>;
+  searchParams: Promise<{ type?: string; homeType?: string; minOffGrid?: string; minPrice?: string; maxPrice?: string; search?: string }>;
 }
 
 export default async function ListingsPage({ searchParams }: ListingsPageProps) {
@@ -23,13 +23,19 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   const mode = params.type === 'rent' ? 'rent' : 'sale';
   const homeTypeFilter = params.homeType;
   const minOffGrid = params.minOffGrid ? parseInt(params.minOffGrid) : 0;
+  const minPrice = params.minPrice ? parseInt(params.minPrice) : undefined;
+  const maxPrice = params.maxPrice ? parseInt(params.maxPrice) : undefined;
+  const searchQuery = params.search;
 
-  // Pull from live SQLite DB
+  // Pull from Supabase DB
   const rows = await getAllListings({
     priceType: mode,
     homeType: homeTypeFilter,
     minOffGrid: minOffGrid > 0 ? minOffGrid : undefined,
     status: 'active',
+    minPrice,
+    maxPrice,
+    search: searchQuery,
   }) as any[];
 
   const listings = rows.map(dbRowToListing);

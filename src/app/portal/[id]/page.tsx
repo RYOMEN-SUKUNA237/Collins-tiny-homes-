@@ -122,11 +122,11 @@ export default function ClientPortalPage({ params }: { params: Promise<{ id: str
   // Math calculations for Rent-to-Own simulations
   const houseValuation = listing?.price || 0;
   const shippingCharge = project.shipping_fee || 0;
-  const accumulatedEquity = (houseValuation * 0.20) + (houseValuation / sliderMonths) * 3; // Seed 3 months paid
+  const accumulatedEquity = (houseValuation * 0.10) + (houseValuation / sliderMonths) * 3; // Seed 3 months paid
   const equityPct = Math.min((accumulatedEquity / houseValuation) * 100, 100);
 
   // Amortized financing summary values for slider
-  const liveDownPayment = houseValuation * 0.20;
+  const liveDownPayment = houseValuation * 0.10;
   const liveLoanAmount = houseValuation - liveDownPayment;
   const liveMonthly = liveLoanAmount / sliderMonths;
 
@@ -214,46 +214,82 @@ export default function ClientPortalPage({ params }: { params: Promise<{ id: str
                 </h3>
 
                 {/* Slider and Financing Amortization table */}
-                <div className="space-y-4 p-5 bg-offwhite border border-sage/10 rounded-2xl">
-                  <div className="flex justify-between items-center text-xs font-bold uppercase text-charcoal-light">
-                    <span>Simulated Term Duration</span>
-                    <span className="text-sage-dark">{sliderMonths} Months</span>
-                  </div>
-                  
-                  <input
-                    type="range"
-                    min={12}
-                    max={60}
-                    step={12}
-                    value={sliderMonths}
-                    onChange={(e) => setSliderMonths(parseInt(e.target.value))}
-                    className="w-full accent-sage"
-                  />
+                {project.payment_method !== 'rent' && (
+                  <div className="space-y-4 p-5 bg-offwhite border border-sage/10 rounded-2xl">
+                    <div className="flex justify-between items-center text-xs font-bold uppercase text-charcoal-light">
+                      <span>Simulated Term Duration</span>
+                      <span className="text-sage-dark">{sliderMonths} Months</span>
+                    </div>
+                    
+                    <input
+                      type="range"
+                      min={12}
+                      max={60}
+                      step={12}
+                      value={sliderMonths}
+                      onChange={(e) => setSliderMonths(parseInt(e.target.value))}
+                      className="w-full accent-sage"
+                    />
 
-                  {/* Dynamic Financial Roadmap Summary Table */}
-                  <div className="pt-4 space-y-2 border-t border-sage/10 text-xs">
-                    <div className="flex justify-between text-charcoal-light">
-                      <span>House Valuation</span>
-                      <span>${houseValuation.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-charcoal-light">
-                      <span>Secured Down Payment (20%)</span>
-                      <span>${liveDownPayment.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between text-charcoal-light">
-                      <span>Shipping/Logistics Base</span>
-                      <span>${shippingCharge.toLocaleString()}</span>
-                    </div>
-                    <div className="h-px bg-sage/10 my-2" />
-                    <div className="flex justify-between font-bold text-sm text-charcoal">
-                      <span>Recalculated Monthly Payment</span>
-                      <span className="font-serif text-sage-dark">${liveMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
+                    {/* Dynamic Financial Roadmap Summary Table */}
+                    <div className="pt-4 space-y-2 border-t border-sage/10 text-xs">
+                      <div className="flex justify-between text-charcoal-light">
+                        <span>House Valuation</span>
+                        <span>${houseValuation.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-charcoal-light">
+                        <span>Secured Down Payment (10%)</span>
+                        <span>${liveDownPayment.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-charcoal-light">
+                        <span>Shipping/Logistics Base</span>
+                        <span>${shippingCharge.toLocaleString()}</span>
+                      </div>
+                      <div className="h-px bg-sage/10 my-2" />
+                      <div className="flex justify-between font-bold text-sm text-charcoal">
+                        <span>Recalculated Monthly Payment</span>
+                        <span className="font-serif text-sage-dark">${liveMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {project.payment_method === 'rent' && (
+                  <div className="space-y-4 p-5 bg-offwhite border border-sage/10 rounded-2xl">
+                    <div className="flex justify-between items-center text-xs font-bold uppercase text-charcoal-light">
+                      <span>Lease Agreement</span>
+                      <span className="text-sage-dark">{project.lease_duration_months || 12} Months Standard Rent</span>
+                    </div>
+
+                    {/* Strict Rent Roadmap Summary Table */}
+                    <div className="pt-4 space-y-2 border-t border-sage/10 text-xs">
+                      <div className="flex justify-between text-charcoal-light">
+                        <span>House Valuation</span>
+                        <span>${houseValuation.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-charcoal-light">
+                        <span>Monthly Rent (1.2%)</span>
+                        <span>${Math.round(houseValuation * 0.012).toLocaleString()}/mo</span>
+                      </div>
+                      <div className="flex justify-between text-charcoal-light">
+                        <span>Upfront Rent Paid (3 months)</span>
+                        <span>${Math.round(houseValuation * 0.012 * 3).toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between text-charcoal-light">
+                        <span>Shipping/Logistics Base</span>
+                        <span>$1,500</span>
+                      </div>
+                      <div className="h-px bg-sage/10 my-2" />
+                      <div className="flex justify-between font-bold text-sm text-charcoal">
+                        <span>Regular Monthly Rent</span>
+                        <span className="font-serif text-sage-dark">${Math.round(houseValuation * 0.012).toLocaleString()}/mo</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Rent to own visual tracker */}
-                {project.payment_method === 'financing' && (
+                {(project.payment_method === 'financing' || project.payment_method === 'rent_to_own') && (
                   <div className="space-y-3.5 pt-2">
                     <div className="flex justify-between items-baseline text-xs">
                       <span className="font-bold text-charcoal uppercase tracking-wider">Rent-to-Own Equity Builder</span>

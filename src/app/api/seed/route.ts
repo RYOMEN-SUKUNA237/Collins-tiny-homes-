@@ -1,9 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { seedDb } from '@/lib/seed';
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
-    const result = await seedDb();
+    let reset = false;
+    try {
+      const body = await req.json();
+      reset = !!body.reset;
+    } catch {
+      // Empty or non-JSON body defaults to false
+    }
+
+    const result = await seedDb({ reset });
     return NextResponse.json(result);
   } catch (error) {
     console.error('Seed error:', error);

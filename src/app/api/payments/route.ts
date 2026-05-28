@@ -61,21 +61,62 @@ export async function POST(request: Request) {
 
       if (projError) throw projError;
 
-      // If they chose financing, create a finance_plan record
+      // If they chose financing, rent_to_own, or rent, create a finance_plan record
       if (
         wizard.paymentMethod === "financing" ||
-        wizard.paymentMethod === "deposit"
+        wizard.paymentMethod === "deposit" ||
+        wizard.paymentMethod === "rent_to_own" ||
+        wizard.paymentMethod === "rent"
       ) {
+        // Fetch real listing price to ensure 100% accurate financial calculations
+        let listingPrice = 0;
+        if (data.listingId) {
+          const { data: listing } = await supabase
+            .from("listings")
+            .select("price")
+            .eq("id", data.listingId)
+            .single();
+          if (listing) {
+            listingPrice = Number(listing.price);
+          }
+        }
+        if (!listingPrice) {
+          listingPrice = data.amount; // fallback
+        }
+
+        const isRto = wizard.paymentMethod === "rent_to_own" || wizard.isRentToOwn;
+        const isStrictRent = wizard.paymentMethod === "rent" || wizard.isRent;
+        
+        let planType = "financing";
+        if (isRto) planType = "rent_to_own";
+        else if (isStrictRent) planType = "rent";
+
+        let rentAmount = 0;
+        let equityAmount = 0;
+
+        if (isStrictRent) {
+          rentAmount = Math.round(listingPrice * 0.012);
+          equityAmount = 0;
+        } else if (isRto) {
+          rentAmount = Math.round(listingPrice * 0.012);
+          equityAmount = Math.round((listingPrice * 0.90) / (wizard.termMonths || 36));
+        } else {
+          // Standard financing
+          rentAmount = Math.round((listingPrice * 0.90) / (wizard.termMonths || 36));
+          equityAmount = 0;
+        }
+
         await supabase.from("finance_plans").insert([
           {
             id: randomUUID(),
             project_id: projectId,
             term_months: wizard.termMonths || 36,
-            base_price: data.amount,
-            equity_amount: 0,
-            rent_amount: data.amount / (wizard.termMonths || 36),
-            shipping_fee: wizard.shippingFee || 0,
+            base_price: listingPrice,
+            equity_amount: equityAmount,
+            rent_amount: rentAmount,
+            shipping_fee: wizard.shippingFee || 1500,
             status: "active",
+            plan_type: planType,
           },
         ]);
       }

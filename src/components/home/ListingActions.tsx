@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import PaymentModal from './PaymentModal';
 import DiscoveryWizard from './DiscoveryWizard';
+import { getDeterministicShippingFee } from '@/lib/shipping';
 
 interface ListingActionsProps {
   listingId: string;
@@ -16,6 +17,7 @@ interface ListingActionsProps {
   downPaymentPct?: number;
   financeTermMonths?: number;
   priceType: string; // 'sale' | 'rent' | 'both'
+  homeType: string; // 'on-wheels' | 'foundation'
 }
 
 type PaymentType = 'full_purchase' | 'down_payment' | 'monthly_rent';
@@ -28,6 +30,7 @@ export default function ListingActions({
   downPaymentPct,
   financeTermMonths,
   priceType,
+  homeType,
 }: ListingActionsProps) {
   const [modal, setModal] = useState<{ open: boolean; type: PaymentType; amount: number }>({
     open: false, type: 'full_purchase', amount: 0,
@@ -47,36 +50,37 @@ export default function ListingActions({
 
   // States for Interactive Amortization Calculator
   const [calcTerm, setCalcTerm] = useState(financeTermMonths || 36);
+  const [calculatorMode, setCalculatorMode] = useState<'financing' | 'rent_to_own'>('financing');
 
   const isRent = priceType === 'rent';
   const isBoth = priceType === 'both';
   const isSale = priceType === 'sale';
 
-  // Proximity addresses
+  // Proximity address suggestions for UI autocompletion
   const MOCK_ADDRESSES = [
-    { name: '123 Pine St, Seattle, WA', distance: 10, serviced: true },
-    { name: '456 Oak Ave, Denver, CO', distance: 45, serviced: true },
-    { name: '789 Maple Rd, Austin, TX', distance: 120, serviced: true },
-    { name: '321 Elm Blvd, Atlanta, GA', distance: 280, serviced: true },
-    { name: '555 Cedar Ln, Boston, MA', distance: 15, serviced: true },
-    { name: '999 Forbidden Sands Rd, Anchorage, AK', distance: 2000, serviced: false }
+    { name: '123 Pine St, Seattle, WA' },
+    { name: '456 Oak Ave, Denver, CO' },
+    { name: '789 Maple Rd, Austin, TX' },
+    { name: '321 Elm Blvd, Atlanta, GA' },
+    { name: '555 Cedar Ln, Boston, MA' }
   ];
+
+  const handleAddressChange = (addr: string) => {
+    setAddress(addr);
+    setServiced(true);
+    if (!addr.trim()) {
+      setShippingFee(null);
+    } else {
+      const fee = getDeterministicShippingFee(addr, homeType);
+      setShippingFee(fee);
+    }
+  };
 
   const handleAddressSelect = (addr: string) => {
     setAddress(addr);
-    const matched = MOCK_ADDRESSES.find(a => a.name === addr) || {
-      name: addr, distance: 400, serviced: true
-    };
-    
-    if (!matched.serviced) {
-      setServiced(false);
-      setShippingFee(null);
-      setAgentModal(true);
-    } else {
-      setServiced(true);
-      const fee = 1500 + matched.distance * 3.50;
-      setShippingFee(fee);
-    }
+    setServiced(true);
+    const fee = getDeterministicShippingFee(addr, homeType);
+    setShippingFee(fee);
   };
 
   const handleAgentSubmit = async (e: React.FormEvent) => {
@@ -103,10 +107,16 @@ export default function ListingActions({
     }
   };
 
-  // Financing Summary math
-  const calculatedDownPayment = price * 0.20;
+  // Financing math
+  const calculatedDownPayment = price * 0.10;
   const loanBalance = price - calculatedDownPayment;
   const monthlyFinance = loanBalance / calcTerm;
+
+  // Rent-to-Own math
+  const rtoDownPayment = price * 0.10; // 10% down option deposit
+  const rtoMonthlyRent = price * 0.012; // 1.2% base monthly rent
+  const rtoMonthlyEquity = (price * 0.90) / calcTerm; // Amortize remaining 90%
+  const rtoTotalMonthly = rtoMonthlyRent + rtoMonthlyEquity;
 
   const openPayment = (type: PaymentType, amount: number) => {
     setModal({ open: true, type, amount });
@@ -151,15 +161,37 @@ export default function ListingActions({
           >
             <span className="flex items-center gap-2">
               <CalendarDays className="w-4 h-4" />
-              Configure Rent-to-Own
+              Configure Rent / Rent-to-Own
             </span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         )}
 
-        {/* INTERACTIVE FINANCE CALCULATOR (FINANCING SUMMARY TABLE) */}
+        {/* INTERACTIVE FINANCE CALCULATOR (FINANCING & RENT-TO-OWN SUMMARY) */}
         {(isSale || isBoth) && (
           <div className="p-5 rounded-2xl border border-sage/10 bg-offwhite space-y-4 shadow-inner">
+            {/* Mode Selector Toggle */}
+            <div className="grid grid-cols-2 gap-1 p-1 bg-sage/10 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setCalculatorMode('financing')}
+                className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all ${
+                  calculatorMode === 'financing' ? 'bg-white text-sage-dark shadow-sm' : 'text-charcoal-light hover:text-charcoal'
+                }`}
+              >
+                Financing
+              </button>
+              <button
+                type="button"
+                onClick={() => setCalculatorMode('rent_to_own')}
+                className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all ${
+                  calculatorMode === 'rent_to_own' ? 'bg-white text-sage-dark shadow-sm' : 'text-charcoal-light hover:text-charcoal'
+                }`}
+              >
+                Rent-to-Own
+              </button>
+            </div>
+
             <div className="flex justify-between items-center text-xs font-bold uppercase text-charcoal-light">
               <span>Term Duration</span>
               <span className="text-sage-dark">{calcTerm} Months</span>
@@ -175,26 +207,52 @@ export default function ListingActions({
               className="w-full accent-sage"
             />
 
-            {/* Real-time Financing Summary Table */}
-            <div className="pt-3 border-t border-sage/10 space-y-2 text-xs">
-              <div className="flex justify-between text-charcoal-light">
-                <span>Total Cost</span>
-                <span>${price.toLocaleString()}</span>
+            {/* Real-time Calculator Summary Table */}
+            {calculatorMode === 'financing' ? (
+              <div className="pt-3 border-t border-sage/10 space-y-2 text-xs">
+                <div className="flex justify-between text-charcoal-light">
+                  <span>Total Price</span>
+                  <span>${price.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-charcoal-light">
+                  <span>Down Payment (10%)</span>
+                  <span>${calculatedDownPayment.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-charcoal-light">
+                  <span>Amortized Balance</span>
+                  <span>${loanBalance.toLocaleString()}</span>
+                </div>
+                <div className="h-px bg-sage/10 my-1" />
+                <div className="flex justify-between font-bold text-charcoal">
+                  <span>Monthly Term Rate</span>
+                  <span className="font-serif text-sage-dark font-bold">${monthlyFinance.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
+                </div>
               </div>
-              <div className="flex justify-between text-charcoal-light">
-                <span>Down Payment (20%)</span>
-                <span>${calculatedDownPayment.toLocaleString()}</span>
+            ) : (
+              <div className="pt-3 border-t border-sage/10 space-y-2 text-xs">
+                <div className="flex justify-between text-charcoal-light">
+                  <span>Total House Value</span>
+                  <span>${price.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-charcoal-light">
+                  <span>Initial Option Deposit (10%)</span>
+                  <span>${rtoDownPayment.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-charcoal-light">
+                  <span>Base Monthly Rent</span>
+                  <span>${rtoMonthlyRent.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
+                </div>
+                <div className="flex justify-between text-charcoal-light">
+                  <span>Monthly Equity Builder</span>
+                  <span>${rtoMonthlyEquity.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
+                </div>
+                <div className="h-px bg-sage/10 my-1" />
+                <div className="flex justify-between font-bold text-charcoal">
+                  <span>Total Monthly Payment</span>
+                  <span className="font-serif text-sage-dark font-bold">${rtoTotalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
+                </div>
               </div>
-              <div className="flex justify-between text-charcoal-light">
-                <span>Amortized Balance</span>
-                <span>${loanBalance.toLocaleString()}</span>
-              </div>
-              <div className="h-px bg-sage/10 my-1" />
-              <div className="flex justify-between font-bold text-charcoal">
-                <span>Monthly Term Rate</span>
-                <span className="font-serif text-sage-dark font-bold">${monthlyFinance.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
-              </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -212,7 +270,7 @@ export default function ListingActions({
               type="text"
               placeholder="Enter shipping address..."
               value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              onChange={(e) => handleAddressChange(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-sage/20 bg-white text-xs outline-none text-charcoal focus:border-sage placeholder:text-charcoal-light/35"
             />
             
@@ -221,6 +279,7 @@ export default function ListingActions({
                 {MOCK_ADDRESSES.map((m) => (
                   <button
                     key={m.name}
+                    type="button"
                     onClick={() => handleAddressSelect(m.name)}
                     className="w-full text-left px-4 py-2 hover:bg-sage/5 text-xs text-charcoal border-b border-sage/5 last:border-b-0"
                   >
@@ -238,23 +297,7 @@ export default function ListingActions({
                   <span className="text-charcoal-light">Shipping Fee Quote:</span>
                   <span className="font-bold text-sage-dark font-mono">${shippingFee.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                 </div>
-              ) : (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex gap-2">
-                  <ShieldAlert className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-bold text-red-800">Delivery Locked</p>
-                    <p className="text-[10px] text-red-700 leading-normal mt-0.5">
-                      This zone requires customized routing clearances from our regional agent network.
-                    </p>
-                    <button
-                      onClick={() => setAgentModal(true)}
-                      className="mt-1.5 text-[10px] font-bold text-red-800 underline block"
-                    >
-                      Connect with Agent &rarr;
-                    </button>
-                  </div>
-                </div>
-              )}
+              ) : null}
             </div>
           )}
         </div>
@@ -270,6 +313,7 @@ export default function ListingActions({
           listingId={listingId}
           listingTitle={listingTitle}
           price={price}
+          homeType={homeType}
           onClose={() => setWizardOpen(false)}
           onProceedToPayment={(type, amount, meta) => {
             setWizardMeta(meta);
@@ -311,6 +355,7 @@ export default function ListingActions({
                   A territorial manager has been successfully assigned. We are matching unserviced routing options and will contact you directly.
                 </p>
                 <button
+                  type="button"
                   onClick={() => setAgentModal(false)}
                   className="mt-4 px-5 py-2.5 bg-sage hover:bg-sage-dark text-white text-xs font-bold rounded-xl transition-all"
                 >

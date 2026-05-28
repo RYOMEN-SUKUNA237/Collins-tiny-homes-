@@ -16,11 +16,11 @@ export default async function HomePage() {
   const allListings = allRows.map(dbRowToListing);
 
   const saleListings = allListings
-    .filter((l) => l.priceType === 'sale')
+    .filter((l) => l.priceType === 'sale' || l.priceType === 'both')
     .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
 
   const rentListings = allListings
-    .filter((l) => l.priceType === 'rent')
+    .filter((l) => l.priceType === 'rent' || l.priceType === 'both')
     .sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0));
 
   return (

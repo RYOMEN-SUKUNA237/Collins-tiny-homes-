@@ -1,13 +1,25 @@
-import { createListing, createListingImage, createLand, createLandImage, upsertSetting, getAllListings } from './db';
+import { createListing, createListingImage, createLand, createLandImage, upsertSetting, getAllListings, supabase } from './db';
 import { v4 as uuidv4 } from 'uuid';
 import { mockListings } from './mock-data';
 
-export async function seedDb() {
-  // Check if we already seeded
-  const existingListings = await getAllListings();
-  if (existingListings.length > 0) {
-    console.log('Database already seeded (listings exist).');
-    return { status: 'already_seeded' };
+export async function seedDb(options?: { reset?: boolean }) {
+  if (options?.reset) {
+    console.log('Reset option passed. Clearing existing tables...');
+    // Delete with filter to clear all rows (using a filter that matches all UUIDs/keys)
+    await supabase.from('listing_images').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('listings').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('land_images').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('lands').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('site_settings').delete().neq('key', 'x_non_existent');
+  }
+
+  // Check if we already seeded (if not resetting)
+  if (!options?.reset) {
+    const existingListings = await getAllListings();
+    if (existingListings.length > 0) {
+      console.log('Database already seeded (listings exist).');
+      return { status: 'already_seeded' };
+    }
   }
 
   console.log('Starting explicit database seeding...');
@@ -53,10 +65,10 @@ export async function seedDb() {
       amenities: JSON.stringify(mock.amenities), // Or leave it as object array, supabase inserts JSONB fine
       is_featured: mock.isFeatured ? true : false,
       status: mock.status,
-      down_payment_pct: mock.id === '1' ? 15 : null,
-      monthly_rent: mock.priceType === 'rent' ? mock.price : 1200,
-      delivery_fee: mock.id === '2' ? 6000 : null,
-      finance_term_months: mock.id === '3' ? 144 : null,
+      down_payment_pct: mock.downPaymentPct || 20,
+      monthly_rent: mock.monthlyRent || 400,
+      delivery_fee: mock.deliveryFee || null,
+      finance_term_months: mock.financeTermMonths || 36,
     });
 
     // Interior images

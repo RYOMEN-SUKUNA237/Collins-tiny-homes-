@@ -179,6 +179,7 @@ export default async function ListingDetailPage({
                     downPaymentPct={listing.downPaymentPct}
                     financeTermMonths={listing.financeTermMonths}
                     priceType={listing.priceType}
+                    homeType={listing.homeType}
                   />
                 </div>
 

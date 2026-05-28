@@ -2,12 +2,27 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
 import { Search, MapPin, ChevronDown } from 'lucide-react';
 
 export default function Hero() {
+  const router = useRouter();
   const [activeMode, setActiveMode] = useState<'buy' | 'rent'>('buy');
+  const [location, setLocation] = useState('');
+  const [budget, setBudget] = useState('');
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    params.set('type', activeMode === 'buy' ? 'sale' : 'rent');
+    if (location.trim()) params.set('search', location.trim());
+    if (budget) {
+      const [min, max] = budget.split('-');
+      if (min) params.set('minPrice', min);
+      if (max) params.set('maxPrice', max);
+    }
+    router.push(`/listings?${params.toString()}`);
+  };
 
   return (
     <section className="hero-container relative min-h-screen flex flex-col" aria-label="Hero">
@@ -116,6 +131,9 @@ export default function Hero() {
                 id="location-search"
                 type="text"
                 placeholder="State, city, or region..."
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 className="flex-1 bg-transparent text-charcoal text-sm placeholder:text-charcoal-light/60 outline-none"
               />
             </div>
@@ -127,20 +145,22 @@ export default function Hero() {
               <span className="text-sage text-sm font-medium">Budget</span>
               <select
                 id="budget-filter"
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
                 className="flex-1 bg-transparent text-charcoal-light text-sm outline-none cursor-pointer"
               >
                 <option value="">Any price</option>
                 {activeMode === 'buy' ? (
                   <>
-                    <option value="100000-200000">$100k – $200k</option>
-                    <option value="200000-350000">$200k – $350k</option>
-                    <option value="350000+">$350k+</option>
+                    <option value="15000-30000">$15k – $30k</option>
+                    <option value="30000-45000">$30k – $45k</option>
+                    <option value="45000-60000">$45k – $60k</option>
                   </>
                 ) : (
                   <>
-                    <option value="0-150">Under $150/night</option>
-                    <option value="150-300">$150 – $300/night</option>
-                    <option value="300+">$300+/night</option>
+                    <option value="0-500">Under $500/mo</option>
+                    <option value="500-1000">$500 – $1,000/mo</option>
+                    <option value="1000-2000">$1,000+/mo</option>
                   </>
                 )}
               </select>
@@ -150,14 +170,14 @@ export default function Hero() {
             <div className="w-px bg-sage/20 hidden sm:block self-stretch" />
 
             {/* Search button */}
-            <Link
-              href={`/listings?type=${activeMode}`}
+            <button
+              onClick={handleSearch}
               id="search-cta"
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-sage text-white font-semibold text-sm shadow-lg shadow-sage/30 hover:bg-sage-dark hover:shadow-sage/50 transition-all duration-200 hover:-translate-y-0.5 whitespace-nowrap"
             >
               <Search className="w-4 h-4" />
               Search
-            </Link>
+            </button>
           </div>
 
           {/* Quick filters */}

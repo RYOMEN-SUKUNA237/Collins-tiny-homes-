@@ -28,6 +28,8 @@ export async function getAllListings(filters?: {
   minOffGrid?: number;
   status?: string;
   search?: string;
+  minPrice?: number;
+  maxPrice?: number;
 }) {
   let query = supabase
     .from("listings")
@@ -50,6 +52,12 @@ export async function getAllListings(filters?: {
     query = query.or(
       `title.ilike.%${filters.search}%,location.ilike.%${filters.search}%`,
     );
+  }
+  if (filters?.minPrice) {
+    query = query.gte("price", filters.minPrice);
+  }
+  if (filters?.maxPrice) {
+    query = query.lte("price", filters.maxPrice);
   }
 
   const { data, error } = await query;
