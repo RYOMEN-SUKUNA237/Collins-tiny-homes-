@@ -12,7 +12,7 @@ export default async function AdminInquiriesPage() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-sage/10 px-8 py-4 flex items-center justify-between">
+      <header className="lg:sticky lg:top-0 z-30 bg-white/90 backdrop-blur-sm border-b border-sage/10 px-4 py-4 sm:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl text-charcoal font-semibold">
             Inquiries
@@ -28,7 +28,7 @@ export default async function AdminInquiriesPage() {
         </div>
       </header>
 
-      <div className="p-8">
+      <div className="p-4 sm:p-8">
         <InquiriesTable initialInquiries={inquiries} />
       </div>
     </>

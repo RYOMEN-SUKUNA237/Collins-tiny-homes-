@@ -81,7 +81,7 @@ export default async function ListingDetailPage({
         </div>
 
         <div className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24">
-          <div className="grid gap-8 lg:grid-cols-3 lg:gap-10">
+          <div className="grid gap-8 lg:grid-cols-3 lg:gap-10 min-w-0 overflow-x-hidden">
             <div className="min-w-0 space-y-8 lg:col-span-2">
               <ImageGallery images={allImages} title={listing.title} />
 

@@ -13,10 +13,11 @@ import {
   CreditCard,
   Briefcase,
   MessageCircle,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ isOpen = false, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
   const [seeding, setSeeding] = useState(false);
   const [seedMsg, setSeedMsg] = useState("");
@@ -70,23 +71,41 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-64 bg-charcoal text-white flex flex-col z-50">
-      {/* Brand */}
-      <div className="p-6 border-b border-white/10">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-xl bg-sage flex items-center justify-center shadow-lg shadow-sage/30">
-            <Home className="w-4 h-4 text-white" strokeWidth={2} />
-          </div>
-          <div>
-            <p className="font-serif text-sm text-white font-semibold">
-              Collins
-            </p>
-            <p className="text-[10px] text-sage-light uppercase tracking-widest">
-              Admin Panel
-            </p>
-          </div>
-        </Link>
-      </div>
+    <>
+      {/* Backdrop for mobile screen sizes */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 z-40 bg-charcoal/50 backdrop-blur-sm lg:hidden transition-opacity duration-300"
+        />
+      )}
+
+      <aside className={`fixed left-0 top-0 bottom-0 w-64 bg-charcoal text-white flex flex-col z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
+        {/* Brand Header */}
+        <div className="p-6 border-b border-white/10 flex items-center justify-between">
+          <Link href="/" onClick={onClose} className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-xl bg-sage flex items-center justify-center shadow-lg shadow-sage/30">
+              <Home className="w-4 h-4 text-white" strokeWidth={2} />
+            </div>
+            <div>
+              <p className="font-serif text-sm text-white font-semibold">
+                Collins
+              </p>
+              <p className="text-[10px] text-sage-light uppercase tracking-widest">
+                Admin Panel
+              </p>
+            </div>
+          </Link>
+          <button
+            onClick={onClose}
+            className="lg:hidden w-8 h-8 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center transition-colors"
+            aria-label="Close sidebar navigation menu"
+          >
+            <X className="w-4 h-4 text-white/80" />
+          </button>
+        </div>
 
       {/* Nav */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -130,5 +149,6 @@ export default function AdminSidebar() {
         </Link>
       </div>
     </aside>
+    </>
   );
 }

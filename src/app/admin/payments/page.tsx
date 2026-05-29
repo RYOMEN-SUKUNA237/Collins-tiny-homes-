@@ -60,12 +60,12 @@ export default async function AdminPaymentsPage() {
   return (
     <>
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-sage/10 px-8 py-4 flex items-center justify-between">
+      <header className="lg:sticky lg:top-0 z-30 bg-white/90 backdrop-blur-sm border-b border-sage/10 px-4 py-4 sm:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl text-charcoal font-semibold">Payments</h1>
           <p className="text-charcoal-light text-xs mt-0.5">{payments.length} transaction{payments.length !== 1 ? 's' : ''} recorded</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-sage/10 border border-sage/20">
+        <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-sage/10 border border-sage/20 w-full sm:w-auto shrink-0">
           <TrendingUp className="w-4 h-4 text-sage" />
           <span className="text-sm font-bold text-charcoal">
             ${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} total
@@ -73,9 +73,9 @@ export default async function AdminPaymentsPage() {
         </div>
       </header>
 
-      <div className="p-8 space-y-8">
+      <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
         {/* Stats Row */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 min-[380px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
             { label: 'Total Attempts', value: payments.length, icon: TrendingUp, color: 'text-sage', bg: 'bg-sage/10' },
             { label: 'Declined', value: declinedPayments.length, icon: XCircle, color: 'text-red-600', bg: 'bg-red-50' },
@@ -114,27 +114,29 @@ export default async function AdminPaymentsPage() {
               return (
                 <div key={p.id} className="bg-white rounded-2xl border border-sage/10 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                   {/* Card top bar — amount, status, type, date */}
-                  <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-offwhite/80 to-white border-b border-sage/10">
-                    <div className="flex items-center gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-4 sm:px-6 bg-gradient-to-r from-offwhite/80 to-white border-b border-sage/10">
+                    <div className="flex flex-wrap items-center gap-3">
                       <p className="font-serif text-2xl font-bold text-charcoal">
                         ${p.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </p>
-                      <span className={`inline-block px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide ${typeColor[p.payment_type] ?? 'bg-gray-100 text-gray-700'}`}>
-                        {typeLabel[p.payment_type] ?? p.payment_type}
-                      </span>
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide ${sc.bg}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
-                        {sc.label}
-                      </span>
+                      <div className="flex gap-2">
+                        <span className={`inline-block px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide ${typeColor[p.payment_type] ?? 'bg-gray-100 text-gray-700'}`}>
+                          {typeLabel[p.payment_type] ?? p.payment_type}
+                        </span>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wide ${sc.bg}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
+                          {sc.label}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t border-sage/10 sm:border-t-0 pt-3 sm:pt-0">
                       <p className="text-xs text-charcoal-light whitespace-nowrap">{formatDate(p.created_at)}</p>
                       <DeleteButton id={p.id} entityType="payments" />
                     </div>
                   </div>
 
                   {/* Card body — 3 column grid */}
-                  <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                     {/* Column 1: Customer Info */}
                     <div className="space-y-4">
@@ -256,7 +258,7 @@ export default async function AdminPaymentsPage() {
                   </div>
 
                   {/* Transaction ID footer */}
-                  <div className="px-6 py-3 bg-offwhite/30 border-t border-sage/8 flex items-center justify-between">
+                  <div className="px-4 py-3 sm:px-6 bg-offwhite/30 border-t border-sage/8 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <p className="text-[10px] text-charcoal-light font-mono">
                       TXN: {p.id.slice(0, 20).toUpperCase()}
                     </p>

@@ -47,7 +47,7 @@ export default async function AdminDashboard() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-sage/10 px-8 py-4 flex items-center justify-between">
+      <header className="lg:sticky lg:top-0 z-30 bg-white/90 backdrop-blur-sm border-b border-sage/10 px-4 py-4 sm:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl text-charcoal font-semibold">
             Overview
@@ -61,7 +61,7 @@ export default async function AdminDashboard() {
             })}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <Link
             href="/admin/lands/new"
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-sage/20 text-charcoal text-sm font-semibold hover:border-sage hover:text-sage transition-all duration-200"
@@ -77,7 +77,7 @@ export default async function AdminDashboard() {
         </div>
       </header>
 
-      <div className="p-8 space-y-8">
+      <div className="p-4 sm:p-8 space-y-6 sm:space-y-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
           {stats.map((stat) => {
@@ -105,7 +105,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-2xl border border-sage/10 shadow-sm p-7">
+        <div className="bg-white rounded-2xl border border-sage/10 shadow-sm p-4 sm:p-7">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-serif text-xl text-charcoal font-semibold">
               Recent Inquiries
@@ -127,45 +127,47 @@ export default async function AdminDashboard() {
               {statsData.recentInquiries.map((inq) => (
                 <div
                   key={inq.id}
-                  className="flex items-center justify-between px-5 py-4 rounded-xl bg-offwhite/60 border border-sage/5 hover:border-sage/15 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-4 sm:px-5 rounded-xl bg-offwhite/60 border border-sage/5 hover:border-sage/15 transition-colors"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-9 h-9 rounded-full bg-sage/15 flex items-center justify-center text-sage font-bold text-sm">
+                    <div className="w-9 h-9 rounded-full bg-sage/15 flex items-center justify-center text-sage font-bold text-sm shrink-0">
                       {inq.name.charAt(0)}
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-charcoal">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-charcoal truncate">
                         {inq.name}
                       </p>
-                      <p className="text-xs text-charcoal-light">
+                      <p className="text-xs text-charcoal-light truncate">
                         {inq.listing_title ||
                           inq.land_title ||
                           "General Subject"}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase ${
-                        inq.inquiry_type === "finance"
-                          ? "bg-clay/15 text-clay-dark"
-                          : "bg-sage/15 text-sage-dark"
-                      }`}
-                    >
-                      {inq.inquiry_type}
-                    </span>
-                    <span
-                      className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${
-                        inq.status === "new"
-                          ? "bg-blue-100 text-blue-700"
-                          : inq.status === "replied"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-600"
-                      }`}
-                    >
-                      {inq.status}
-                    </span>
-                    <span className="text-xs text-charcoal-light">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-4 justify-between sm:justify-end w-full sm:w-auto border-t border-sage/10 sm:border-t-0 pt-3 sm:pt-0">
+                    <div className="flex gap-2">
+                      <span
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase ${
+                          inq.inquiry_type === "finance"
+                            ? "bg-clay/15 text-clay-dark"
+                            : "bg-sage/15 text-sage-dark"
+                        }`}
+                      >
+                        {inq.inquiry_type}
+                      </span>
+                      <span
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold ${
+                          inq.status === "new"
+                            ? "bg-blue-100 text-blue-700"
+                            : inq.status === "replied"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        {inq.status}
+                      </span>
+                    </div>
+                    <span className="text-xs text-charcoal-light font-medium">
                       {new Date(inq.created_at).toLocaleDateString()}
                     </span>
                   </div>

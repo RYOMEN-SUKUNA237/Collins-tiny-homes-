@@ -116,8 +116,8 @@ export default function InquiriesTable({ initialInquiries }: InquiriesTableProps
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-sage/10 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-sage/10 shadow-sm overflow-hidden min-w-0">
+        <div className="overflow-x-auto min-w-0">
           <table className="w-full">
             <thead>
               <tr className="text-left border-b border-sage/10 bg-offwhite/50">

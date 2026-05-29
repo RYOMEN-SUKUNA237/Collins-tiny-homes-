@@ -163,7 +163,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
       {/* Toolbar */}
-      <div className="sticky top-0 z-30 bg-offwhite/90 backdrop-blur-sm py-3 flex items-center justify-between border-b border-sage/10 -mx-8 px-8 mb-2">
+      <div className="sticky top-0 z-30 bg-offwhite/90 backdrop-blur-sm py-3 flex items-center justify-between border-b border-sage/10 -mx-4 px-4 sm:-mx-8 sm:px-8 mb-2">
         <Link href="/admin/listings" className="flex items-center gap-2 text-sm text-charcoal-light hover:text-charcoal transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Listings
         </Link>
@@ -196,7 +196,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
           <label className={labelClass}>Description *</label>
           <textarea required value={form.description} onChange={e => set('description', e.target.value)} rows={4} placeholder="Describe this property…" className={`${fieldClass} resize-none`} />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Location (City, State short) *</label>
             <input required value={form.location} onChange={e => set('location', e.target.value)} placeholder="e.g. Asheville, NC" className={fieldClass} />
@@ -206,7 +206,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
             <input required value={form.state} onChange={e => set('state', e.target.value)} placeholder="e.g. North Carolina" className={fieldClass} />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Latitude</label>
             <input type="number" step="any" value={form.lat} onChange={e => set('lat', e.target.value)} placeholder="35.5951" className={fieldClass} />
@@ -221,7 +221,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
       {/* ── PRICING & TYPE ── */}
       <div className={sectionClass}>
         <h2 className="font-serif text-lg text-charcoal font-semibold">Pricing & Type</h2>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Price ($) *</label>
             <input required type="number" min="0" value={form.price} onChange={e => set('price', e.target.value)} placeholder="125000" className={fieldClass} />
@@ -242,7 +242,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Down Payment %</label>
             <div className="flex gap-2">
@@ -261,7 +261,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
             <input type="number" min="0" value={form.deliveryFee} onChange={e => set('deliveryFee', e.target.value)} placeholder="5000" className={fieldClass} />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className={labelClass}>Finance Term (months)</label>
             <div className="flex gap-2">
@@ -296,7 +296,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
       {/* ── SPECS ── */}
       <div className={sectionClass}>
         <h2 className="font-serif text-lg text-charcoal font-semibold">Specs</h2>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Square Footage *</label>
             <input required type="number" min="0" value={form.sqft} onChange={e => set('sqft', e.target.value)} placeholder="320" className={fieldClass} />
@@ -310,7 +310,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
             <input required type="number" min="0" max="10" step="0.5" value={form.bathrooms} onChange={e => set('bathrooms', e.target.value)} placeholder="1" className={fieldClass} />
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Loft Count</label>
             <input type="number" min="0" max="5" value={form.loftCount} onChange={e => set('loftCount', e.target.value)} placeholder="0" className={fieldClass} />
@@ -324,7 +324,7 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
             <input type="number" min="0" value={form.insulationRValue} onChange={e => set('insulationRValue', e.target.value)} placeholder="30" className={fieldClass} />
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className={labelClass}>Water System</label>
             <select value={form.waterSystem} onChange={e => set('waterSystem', e.target.value)} className={fieldClass}>

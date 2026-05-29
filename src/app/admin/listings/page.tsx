@@ -13,7 +13,7 @@ export default async function AdminListingsPage() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-sage/10 px-8 py-4 flex items-center justify-between">
+      <header className="lg:sticky lg:top-0 z-30 bg-white/90 backdrop-blur-sm border-b border-sage/10 px-4 py-4 sm:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-serif text-2xl text-charcoal font-semibold">
             Listings
@@ -24,16 +24,16 @@ export default async function AdminListingsPage() {
         </div>
         <Link
           href="/admin/listings/new"
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-sage text-white text-sm font-semibold shadow-lg shadow-sage/25 hover:bg-sage-dark transition-all duration-200"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-sage text-white text-sm font-semibold shadow-lg shadow-sage/25 hover:bg-sage-dark transition-all duration-200 w-full sm:w-auto shrink-0"
         >
           <Plus className="w-4 h-4" />
           New Listing
         </Link>
       </header>
 
-      <div className="p-8">
-        <div className="bg-white rounded-2xl border border-sage/10 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
+      <div className="p-4 sm:p-8">
+        <div className="bg-white rounded-2xl border border-sage/10 shadow-sm overflow-hidden min-w-0 overflow-x-hidden">
+          <div className="overflow-x-auto min-w-0">
             <table className="w-full">
               <thead>
                 <tr className="text-left border-b border-sage/10 bg-offwhite/50">
