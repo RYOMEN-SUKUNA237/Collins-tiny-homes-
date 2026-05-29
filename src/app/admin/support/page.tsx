@@ -1,12 +1,21 @@
 import type { Metadata } from 'next';
 import SupportInbox from '@/components/admin/SupportInbox';
 import { getAllSupportConversations } from '@/lib/db';
+import type { SupportConversation } from '@/lib/types';
 
 export const metadata: Metadata = { title: 'Support Inbox | Admin' };
 export const dynamic = 'force-dynamic';
 
 export default async function AdminSupportPage() {
-  const conversations = await getAllSupportConversations();
+  let conversations: SupportConversation[] = [];
+  try {
+    conversations = await getAllSupportConversations();
+  } catch (err) {
+    // Gracefully handle backend errors so the admin UI can still render
+    // and the client can surface a retry/refresh option.
+    console.warn("Failed to load support conversations:", err);
+    conversations = [];
+  }
   const openCount = conversations.filter(conversation => conversation.status === 'open').length;
   const unreadCount = conversations.reduce((total, conversation) => total + (conversation.unread_count || 0), 0);
 

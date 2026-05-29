@@ -31,7 +31,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
       {/* Main Image Container */}
       <div 
         onClick={() => setLightboxOpen(true)}
-        className="relative h-[400px] md:h-[500px] w-full rounded-3xl overflow-hidden bg-charcoal/5 group border border-sage/10 cursor-pointer shadow-lg shadow-sage/5"
+        className="group relative h-[260px] w-full cursor-pointer overflow-hidden rounded-2xl border border-sage/10 bg-charcoal/5 shadow-lg shadow-sage/5 sm:h-[360px] sm:rounded-3xl md:h-[500px]"
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -57,9 +57,9 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-charcoal/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
         {/* Zoom Button */}
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-charcoal border border-sage/10 px-3.5 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105 shadow-md">
+        <div className="absolute right-3 top-3 flex items-center gap-1.5 rounded-xl border border-sage/10 bg-white/90 px-3 py-2 text-xs font-semibold text-charcoal opacity-100 shadow-md backdrop-blur-md transition-all duration-300 hover:scale-105 sm:right-4 sm:top-4 sm:rounded-2xl sm:opacity-0 sm:group-hover:opacity-100">
           <Maximize2 className="w-3.5 h-3.5 text-sage" />
-          <span>Expand View</span>
+          <span className="hidden sm:inline">Expand View</span>
         </div>
 
         {/* Navigation Arrows */}
@@ -67,13 +67,13 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
           <>
             <button
               onClick={prevImage}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-2xl bg-white/90 backdrop-blur-md text-charcoal hover:text-sage flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105 border border-sage/10"
+              className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl border border-sage/10 bg-white/90 text-charcoal opacity-100 shadow-lg backdrop-blur-md transition-all duration-300 hover:scale-105 hover:text-sage sm:left-4 sm:h-11 sm:w-11 sm:rounded-2xl sm:opacity-0 sm:group-hover:opacity-100"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={nextImage}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-2xl bg-white/90 backdrop-blur-md text-charcoal hover:text-sage flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105 border border-sage/10"
+              className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl border border-sage/10 bg-white/90 text-charcoal opacity-100 shadow-lg backdrop-blur-md transition-all duration-300 hover:scale-105 hover:text-sage sm:right-4 sm:h-11 sm:w-11 sm:rounded-2xl sm:opacity-0 sm:group-hover:opacity-100"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -81,14 +81,14 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
         )}
 
         {/* Indicator Badge */}
-        <div className="absolute bottom-4 left-4 bg-charcoal/70 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-xl text-[11px] font-mono tracking-widest text-white/90">
+        <div className="absolute bottom-3 left-3 rounded-xl border border-white/10 bg-charcoal/70 px-3 py-1.5 font-mono text-[11px] tracking-widest text-white/90 backdrop-blur-md sm:bottom-4 sm:left-4">
           {activeIdx + 1} / {images.length}
         </div>
       </div>
 
       {/* Thumbnails Row */}
       {images.length > 1 && (
-        <div className="flex gap-2.5 overflow-x-auto py-1 scrollbar-thin scrollbar-thumb-sage/20 scrollbar-track-transparent">
+        <div className="flex w-full max-w-full gap-2.5 overflow-x-auto py-1 scrollbar-thin scrollbar-thumb-sage/20 scrollbar-track-transparent">
           {images.map((src, i) => (
             <button
               key={i}
@@ -116,18 +116,18 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] bg-charcoal/95 backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-[110] flex items-center justify-center bg-charcoal/95 p-3 backdrop-blur-md sm:p-4"
           >
             {/* Close Button */}
             <button
               onClick={() => setLightboxOpen(false)}
-              className="absolute top-6 right-6 w-12 h-12 rounded-2xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all z-[120]"
+              className="absolute right-4 top-4 z-[120] flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white transition-all hover:bg-white/20 sm:right-6 sm:top-6 sm:h-12 sm:w-12 sm:rounded-2xl"
             >
               <X className="w-6 h-6" />
             </button>
 
             {/* Modal Image Wrapper */}
-            <div className="relative w-full max-w-5xl h-[70vh] md:h-[80vh] flex items-center justify-center">
+            <div className="relative flex h-[68dvh] w-full max-w-5xl items-center justify-center md:h-[80vh]">
               <Image
                 src={images[activeIdx]}
                 alt={`${title} expanded`}
@@ -141,13 +141,13 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute -left-4 md:left-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-2xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shadow-2xl transition-all"
+                    className="absolute left-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl bg-white/10 text-white shadow-2xl transition-all hover:bg-white/20 md:left-4 md:h-14 md:w-14 md:rounded-2xl"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute -right-4 md:right-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-2xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center shadow-2xl transition-all"
+                    className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl bg-white/10 text-white shadow-2xl transition-all hover:bg-white/20 md:right-4 md:h-14 md:w-14 md:rounded-2xl"
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
@@ -156,7 +156,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
             </div>
 
             {/* Bottom thumbnail selector in Lightbox */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-charcoal-light/30 backdrop-blur-md border border-white/10 rounded-2xl p-3 max-w-[90vw] overflow-x-auto flex gap-2">
+            <div className="absolute bottom-4 left-1/2 flex max-w-[92vw] -translate-x-1/2 gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-charcoal-light/30 p-2 backdrop-blur-md sm:bottom-6 sm:p-3">
               {images.map((src, i) => (
                 <button
                   key={i}

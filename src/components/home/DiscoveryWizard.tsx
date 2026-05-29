@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -32,7 +32,7 @@ function generateSupportMessage(name: string, listingTitle: string, landStatus: 
   const intro = landStatus === 'looking'
     ? `Hi, my name is ${name || '[Your Name]'}. I am interested in the "${listingTitle}" and I am currently searching for a suitable land parcel to place it on.`
     : `Hi, my name is ${name || '[Your Name]'}. I am interested in the "${listingTitle}" but I have not yet found a land parcel to place it on.`;
-  return `${intro} I would love to discuss my options with your team — including available land parcels, placement logistics, zoning support, and any land-lease arrangements you may offer. Please reach out at your earliest convenience. Thank you!`;
+  return `${intro} I would love to discuss my options with your team â€” including available land parcels, placement logistics, zoning support, and any land-lease arrangements you may offer. Please reach out at your earliest convenience. Thank you!`;
 }
 
 export default function DiscoveryWizard({
@@ -119,7 +119,7 @@ export default function DiscoveryWizard({
         body: JSON.stringify({
           visitorName: supportForm.name,
           visitorEmail: supportForm.email,
-          subject: `Land Search Inquiry — ${listingTitle}`,
+          subject: `Land Search Inquiry â€” ${listingTitle}`,
           sessionId: `wizard-${Date.now()}`,
           initialMessage: supportMessage,
         }),
@@ -219,21 +219,21 @@ export default function DiscoveryWizard({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-charcoal/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Main Wizard Dialog */}
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-10 border border-sage/10">
+      <div className="relative z-10 flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-sage/10 bg-white shadow-2xl sm:max-h-[90vh] sm:max-w-2xl sm:rounded-3xl">
         <div className="h-1.5 w-full bg-gradient-to-r from-sage via-sage-light to-clay shrink-0" />
 
         {/* Header */}
-        <div className="p-6 border-b border-sage/10 flex items-center justify-between shrink-0 bg-sage/5">
-          <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-sage/10 bg-sage/5 p-4 sm:p-6">
+          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <span className="text-xs font-mono uppercase bg-sage/20 text-sage-dark px-3 py-1 rounded-lg font-bold">
               Step {step} of 3
             </span>
-            <h2 className="font-serif text-lg text-charcoal font-semibold">Discovery Wizard</h2>
+            <h2 className="font-serif text-base font-semibold text-charcoal sm:text-lg">Discovery Wizard</h2>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-xl bg-sage/10 text-charcoal-light hover:text-charcoal hover:bg-sage/25 flex items-center justify-center transition-all">
             <X className="w-4 h-4" />
@@ -241,7 +241,7 @@ export default function DiscoveryWizard({
         </div>
 
         {/* Steps Bar */}
-        <div className="px-8 py-3 bg-offwhite border-b border-sage/10 flex gap-2 shrink-0">
+        <div className="flex shrink-0 gap-2 border-b border-sage/10 bg-offwhite px-4 py-3 sm:px-8">
           {[1, 2, 3].map((s) => (
             <div
               key={s}
@@ -253,7 +253,7 @@ export default function DiscoveryWizard({
         </div>
 
         {/* Scrollable Content */}
-        <div className="p-8 overflow-y-auto flex-1 space-y-6">
+        <div className="flex-1 space-y-6 overflow-y-auto p-4 sm:p-8">
           
           {/* STEP 1: GOAL */}
           {step === 1 && (
@@ -266,7 +266,7 @@ export default function DiscoveryWizard({
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                 {[
                   { id: 'living', title: 'Primary Residence', desc: 'Full-time, sustainable year-round living equipped for maximum efficiency.' },
                   { id: 'investment', title: 'High-Yield Asset', desc: 'Optimized as an Airbnb, short-term rental, or backyard guest studio.' },
@@ -310,7 +310,7 @@ export default function DiscoveryWizard({
               {/* TIMELINE */}
               <div className="space-y-3">
                 <label className="text-xs uppercase tracking-wider text-charcoal-light font-bold">Project Timeline</label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   {[
                     { id: 'immediate', label: 'Immediate (<3 mo)' },
                     { id: '3-6_months', label: 'Planning (3-6 mo)' },
@@ -334,7 +334,7 @@ export default function DiscoveryWizard({
               {/* LAND OWNERSHIP */}
               <div className="space-y-3">
                 <label className="text-xs uppercase tracking-wider text-charcoal-light font-bold">Land Status</label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   {[
                     { id: 'owns', label: 'I own land' },
                     { id: 'looking', label: 'Looking for land' },
@@ -367,14 +367,14 @@ export default function DiscoveryWizard({
                         onClick={() => { setPendingLandStatus(landOwnership as 'looking' | 'none'); setSupportStep('prompt'); setSupportModal(true); }}
                         className="mt-1.5 text-xs font-bold text-amber-900 underline"
                       >
-                        Talk to our support team →
+                        Talk to our support team â†’
                       </button>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* I OWN LAND — show address input for location */}
+              {/* I OWN LAND â€” show address input for location */}
               {landOwnership === 'owns' && (
                 <div className="space-y-3 p-5 bg-sage/5 border border-sage/10 rounded-2xl">
                   <h4 className="font-serif font-bold text-charcoal text-sm flex items-center gap-2">
@@ -415,7 +415,7 @@ export default function DiscoveryWizard({
               </div>
 
               {/* PAYMENT METHOD CARDS */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {[
                   { id: 'cash', title: '100% Full Pay', desc: 'Secure direct purchase. Best pricing, no finance fees.' },
                   { id: 'financing', title: 'Term Financing', desc: 'Spread balance over customizable monthly payments.' },
@@ -430,7 +430,7 @@ export default function DiscoveryWizard({
                       paymentMethod === item.id 
                         ? 'border-sage bg-sage/5' 
                         : 'border-sage/15 bg-white hover:border-sage/35'
-                    } ${item.id === 'deposit' ? 'col-span-2' : ''}`}
+                    } ${item.id === 'deposit' ? 'sm:col-span-2' : ''}`}
                   >
                     <div>
                       <h4 className="font-bold text-charcoal text-sm mb-1">{item.title}</h4>
@@ -484,15 +484,15 @@ export default function DiscoveryWizard({
 
                 {paymentMethod === 'cash' && (
                   <div className="space-y-3 text-sm">
-                    <div className="flex justify-between text-charcoal-light">
+                    <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                       <span>Tiny Home Base Cost:</span>
                       <span>${price.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-charcoal-light">
+                    <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                       <span>Shipping/Logistics Quote:</span>
                       <span>${shippingFee > 0 ? shippingFee.toLocaleString(undefined, { maximumFractionDigits: 0 }) : 'TBD'}</span>
                     </div>
-                    <div className="flex justify-between font-bold text-charcoal pt-3 border-t border-sage/10">
+                    <div className="flex flex-wrap justify-between gap-2 border-t border-sage/10 pt-3 font-bold text-charcoal">
                       <span>Total Purchase Obligation:</span>
                       <span className="font-serif text-lg text-sage-dark">${cashTotal.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                     </div>
@@ -501,24 +501,24 @@ export default function DiscoveryWizard({
 
                 {paymentMethod === 'rent_to_own' && (
                   <div className="space-y-2.5 text-xs">
-                    <div className="flex justify-between text-charcoal-light">
+                    <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                       <span>Total Home Value</span>
                       <span>${price.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-charcoal-light">
+                    <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                       <span>Option Deposit (10%)</span>
                       <span>${rtoDownPayment.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-charcoal-light">
+                    <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                       <span>Base Monthly Rent</span>
                       <span>${rtoMonthlyRent.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
                     </div>
-                    <div className="flex justify-between text-charcoal-light">
+                    <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                       <span>Monthly Equity Builder</span>
                       <span>${rtoMonthlyEquity.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
                     </div>
                     <div className="h-px bg-sage/10 my-1" />
-                    <div className="flex justify-between font-bold text-charcoal">
+                    <div className="flex flex-wrap justify-between gap-2 font-bold text-charcoal">
                       <span>Total Monthly Payment</span>
                       <span className="font-serif text-lg text-sage-dark">${rtoTotalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
                     </div>
@@ -530,24 +530,24 @@ export default function DiscoveryWizard({
 
                 {paymentMethod === 'rent' && (
                   <div className="space-y-2.5 text-xs">
-                    <div className="flex justify-between text-charcoal-light">
+                    <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                       <span>Tiny Home Base Cost:</span>
                       <span>${price.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-charcoal-light">
+                    <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                       <span>Monthly Rent (1.2%):</span>
                       <span>${Math.round(price * 0.012).toLocaleString()}/mo</span>
                     </div>
-                    <div className="flex justify-between text-charcoal-light">
+                    <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                       <span>3 Months Upfront Rent:</span>
                       <span>${Math.round(price * 0.012 * 3).toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-charcoal-light">
+                    <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                       <span>Logistics Shipping/Delivery Fee:</span>
                       <span>$1,500</span>
                     </div>
                     <div className="h-px bg-sage/10 my-1" />
-                    <div className="flex justify-between font-bold text-charcoal">
+                    <div className="flex flex-wrap justify-between gap-2 font-bold text-charcoal">
                       <span>Total Upfront Due Now:</span>
                       <span className="font-serif text-lg text-sage-dark">${Math.round(price * 0.012 * 3 + 1500).toLocaleString()}</span>
                     </div>
@@ -575,10 +575,10 @@ export default function DiscoveryWizard({
         </div>
 
         {/* Footer controls */}
-        <div className="p-6 border-t border-sage/10 flex items-center justify-between shrink-0 bg-sage/5">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-sage/10 bg-sage/5 p-4 sm:p-6">
           <button
             onClick={() => step > 1 ? setStep((s) => (s - 1) as any) : onClose()}
-            className="px-5 py-3 rounded-2xl bg-white border border-sage/20 text-charcoal hover:border-sage text-sm font-semibold transition-colors flex items-center gap-2"
+            className="flex items-center gap-2 rounded-2xl border border-sage/20 bg-white px-4 py-3 text-sm font-semibold text-charcoal transition-colors hover:border-sage sm:px-5"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>{step === 1 ? 'Cancel' : 'Back'}</span>
@@ -587,7 +587,7 @@ export default function DiscoveryWizard({
           {step < 3 ? (
             <button
               onClick={() => setStep((s) => (s + 1) as any)}
-              className="px-6 py-3 rounded-2xl bg-sage hover:bg-sage-dark text-white text-sm font-bold shadow-lg shadow-sage/25 transition-all flex items-center gap-2"
+              className="flex items-center gap-2 rounded-2xl bg-sage px-4 py-3 text-sm font-bold text-white shadow-lg shadow-sage/25 transition-all hover:bg-sage-dark sm:px-6"
             >
               <span>Continue</span>
               <ArrowRight className="w-4 h-4" />
@@ -595,7 +595,7 @@ export default function DiscoveryWizard({
           ) : (
             <button
               onClick={handleFinishWizard}
-              className="px-6 py-3 rounded-2xl bg-sage hover:bg-sage-dark text-white text-sm font-bold shadow-lg shadow-sage/25 transition-all flex items-center gap-2"
+              className="flex items-center gap-2 rounded-2xl bg-sage px-4 py-3 text-sm font-bold text-white shadow-lg shadow-sage/25 transition-all hover:bg-sage-dark sm:px-6"
             >
               <span>Review & Pay</span>
               <ArrowRight className="w-4 h-4" />
@@ -604,21 +604,21 @@ export default function DiscoveryWizard({
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════
-          LAND SUPPORT MODAL — Talk to Support flow
-      ════════════════════════════════════════════════ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          LAND SUPPORT MODAL â€” Talk to Support flow
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <AnimatePresence>
         {supportModal && (
-          <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[130] flex items-end justify-center p-0 sm:items-center sm:p-4">
             <div className="absolute inset-0 bg-charcoal/80" onClick={() => setSupportModal(false)} />
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 10 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
-              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-sage/15 z-10 overflow-hidden"
+              className="relative z-10 max-h-[100dvh] w-full overflow-hidden rounded-t-3xl border border-sage/15 bg-white shadow-2xl sm:max-w-md sm:rounded-3xl"
             >
               <div className="h-1 w-full bg-gradient-to-r from-sage to-clay" />
-              <div className="p-8 space-y-5">
+              <div className="max-h-[calc(100dvh-0.25rem)] space-y-5 overflow-y-auto p-4 sm:p-8">
 
                 {/* PROMPT STEP */}
                 {supportStep === 'prompt' && (
@@ -633,13 +633,13 @@ export default function DiscoveryWizard({
                         </h3>
                         <p className="text-xs text-charcoal-light mt-1 leading-relaxed">
                           {pendingLandStatus === 'looking'
-                            ? "No worries — our support team has access to vetted land parcels and lease options across all regions. Would you like us to help you find the right spot?"
+                            ? "No worries â€” our support team has access to vetted land parcels and lease options across all regions. Would you like us to help you find the right spot?"
                             : "Our specialists can connect you with available land parcels, zoning support, and lease-to-own land arrangements. Want to start a conversation?"}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row">
                       <button
                         onClick={handleSupportPromptYes}
                         className="flex-1 py-3.5 rounded-2xl bg-sage hover:bg-sage-dark text-white font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-md shadow-sage/20"
@@ -666,7 +666,7 @@ export default function DiscoveryWizard({
                         Draft Your Message
                       </h3>
                       <p className="text-xs text-charcoal-light mt-1">
-                        We've written a message for you — feel free to edit it before sending.
+                        We've written a message for you â€” feel free to edit it before sending.
                       </p>
                     </div>
 
@@ -721,7 +721,7 @@ export default function DiscoveryWizard({
                         className="flex-1 py-3 rounded-xl bg-sage hover:bg-sage-dark text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md shadow-sage/20 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {supportSending ? (
-                          <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
+                          <><Loader2 className="w-4 h-4 animate-spin" /> Sendingâ€¦</>
                         ) : (
                           <><Send className="w-4 h-4" /> Send to Support</>
                         )}
@@ -764,13 +764,13 @@ export default function DiscoveryWizard({
       {/* Regional Agent Modal Overlay */}
       <AnimatePresence>
         {agentModal && (
-          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[120] flex items-end justify-center p-0 sm:items-center sm:p-4">
             <div className="absolute inset-0 bg-charcoal/80" onClick={() => setAgentModal(false)} />
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl border border-sage/15 z-10 space-y-5"
+              className="relative z-10 max-h-[100dvh] w-full space-y-5 overflow-y-auto rounded-t-3xl border border-sage/15 bg-white p-4 shadow-2xl sm:max-w-md sm:rounded-3xl sm:p-8"
             >
               <h3 className="font-serif text-lg text-charcoal font-semibold flex items-center gap-2">
                 <Landmark className="w-5 h-5 text-sage" /> Connect with Regional Agent
@@ -845,3 +845,4 @@ export default function DiscoveryWizard({
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import {
@@ -131,24 +131,24 @@ export default function ListingActions({
           <div className="space-y-3">
             <button
               onClick={() => setWizardOpen(true)}
-              className="w-full flex items-center justify-between py-4 px-5 rounded-2xl bg-gradient-to-r from-sage to-sage-dark text-white font-bold text-sm shadow-lg shadow-sage/20 hover:shadow-sage/35 hover:-translate-y-0.5 transition-all duration-200 group"
+              className="group flex w-full items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-sage to-sage-dark px-4 py-4 text-left text-sm font-bold text-white shadow-lg shadow-sage/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sage/35 sm:px-5"
             >
-              <span className="flex items-center gap-2">
-                <Home className="w-4 h-4" />
-                Inquire / Buy — ${price.toLocaleString()}
+              <span className="flex min-w-0 items-center gap-2">
+                <Home className="h-4 w-4 shrink-0" />
+                Inquire / Buy â€” ${price.toLocaleString()}
               </span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
             </button>
 
             <button
               onClick={() => setWizardOpen(true)}
-              className="w-full flex items-center justify-between py-3.5 px-5 rounded-2xl border-2 border-sage/20 text-charcoal font-semibold text-sm hover:border-sage/40 hover:bg-sage/5 transition-all duration-200 group"
+              className="group flex w-full items-center justify-between gap-3 rounded-2xl border-2 border-sage/20 px-4 py-3.5 text-left text-sm font-semibold text-charcoal transition-all duration-200 hover:border-sage/40 hover:bg-sage/5 sm:px-5"
             >
-              <span className="flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-sage" />
+              <span className="flex min-w-0 items-center gap-2">
+                <CreditCard className="h-4 w-4 shrink-0 text-sage" />
                 Configure Term Financing
               </span>
-              <ArrowRight className="w-4 h-4 text-sage group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="h-4 w-4 shrink-0 text-sage transition-transform group-hover:translate-x-1" />
             </button>
           </div>
         )}
@@ -157,13 +157,13 @@ export default function ListingActions({
         {(isRent || isBoth) && (
           <button
             onClick={() => setWizardOpen(true)}
-            className="w-full flex items-center justify-between py-4 px-5 rounded-2xl bg-clay text-white font-bold text-sm shadow-lg shadow-clay/20 hover:shadow-clay/35 hover:-translate-y-0.5 transition-all duration-200 group"
+            className="group flex w-full items-center justify-between gap-3 rounded-2xl bg-clay px-4 py-4 text-left text-sm font-bold text-white shadow-lg shadow-clay/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-clay/35 sm:px-5"
           >
-            <span className="flex items-center gap-2">
-              <CalendarDays className="w-4 h-4" />
+            <span className="flex min-w-0 items-center gap-2">
+              <CalendarDays className="h-4 w-4 shrink-0" />
               Configure Rent / Rent-to-Own
             </span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
           </button>
         )}
 
@@ -192,7 +192,7 @@ export default function ListingActions({
               </button>
             </div>
 
-            <div className="flex justify-between items-center text-xs font-bold uppercase text-charcoal-light">
+            <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold uppercase text-charcoal-light">
               <span>Term Duration</span>
               <span className="text-sage-dark">{calcTerm} Months</span>
             </div>
@@ -210,44 +210,44 @@ export default function ListingActions({
             {/* Real-time Calculator Summary Table */}
             {calculatorMode === 'financing' ? (
               <div className="pt-3 border-t border-sage/10 space-y-2 text-xs">
-                <div className="flex justify-between text-charcoal-light">
+                <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                   <span>Total Price</span>
                   <span>${price.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-charcoal-light">
+                <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                   <span>Down Payment (10%)</span>
                   <span>${calculatedDownPayment.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-charcoal-light">
+                <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                   <span>Amortized Balance</span>
                   <span>${loanBalance.toLocaleString()}</span>
                 </div>
                 <div className="h-px bg-sage/10 my-1" />
-                <div className="flex justify-between font-bold text-charcoal">
+                <div className="flex flex-wrap justify-between gap-2 font-bold text-charcoal">
                   <span>Monthly Term Rate</span>
                   <span className="font-serif text-sage-dark font-bold">${monthlyFinance.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
                 </div>
               </div>
             ) : (
               <div className="pt-3 border-t border-sage/10 space-y-2 text-xs">
-                <div className="flex justify-between text-charcoal-light">
+                <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                   <span>Total House Value</span>
                   <span>${price.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-charcoal-light">
+                <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                   <span>Initial Option Deposit (10%)</span>
                   <span>${rtoDownPayment.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-charcoal-light">
+                <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                   <span>Base Monthly Rent</span>
                   <span>${rtoMonthlyRent.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
                 </div>
-                <div className="flex justify-between text-charcoal-light">
+                <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
                   <span>Monthly Equity Builder</span>
                   <span>${rtoMonthlyEquity.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
                 </div>
                 <div className="h-px bg-sage/10 my-1" />
-                <div className="flex justify-between font-bold text-charcoal">
+                <div className="flex flex-wrap justify-between gap-2 font-bold text-charcoal">
                   <span>Total Monthly Payment</span>
                   <span className="font-serif text-sage-dark font-bold">${rtoTotalMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
                 </div>
@@ -293,7 +293,7 @@ export default function ListingActions({
           {address && (
             <div className="pt-2">
               {serviced && shippingFee !== null ? (
-                <div className="flex justify-between text-xs items-center bg-white border border-sage/10 rounded-xl p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-sage/10 bg-white p-3 text-xs">
                   <span className="text-charcoal-light">Shipping Fee Quote:</span>
                   <span className="font-bold text-sage-dark font-mono">${shippingFee.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                 </div>
@@ -303,7 +303,7 @@ export default function ListingActions({
         </div>
 
         <p className="text-center text-xs text-charcoal-light">
-          🔒 Secure Checkout · 256-Bit SSL Encrypted
+          ðŸ”’ Secure Checkout Â· 256-Bit SSL Encrypted
         </p>
       </div>
 
@@ -413,3 +413,4 @@ export default function ListingActions({
     </>
   );
 }
+

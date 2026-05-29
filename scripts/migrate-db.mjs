@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 function ensureDependency(name) {
   try {
     import.meta.resolve(name);
-  } catch (e) {
+  } catch {
     console.log(`Dependency "${name}" is missing. Installing...`);
     execSync(`npm install ${name}`, { stdio: 'inherit' });
   }
@@ -49,10 +49,10 @@ if (!projRef) {
   process.exit(1);
 }
 
-const dbHost = `db.${projRef}.supabase.co`;
-const dbUser = 'postgres';
-const dbName = 'postgres';
-const dbPort = 5432;
+const dbHost = process.env.SUPABASE_DB_HOST || env.SUPABASE_DB_HOST || `db.${projRef}.supabase.co`;
+const dbUser = process.env.SUPABASE_DB_USER || env.SUPABASE_DB_USER || 'postgres';
+const dbName = process.env.SUPABASE_DB_NAME || env.SUPABASE_DB_NAME || 'postgres';
+const dbPort = Number(process.env.SUPABASE_DB_PORT || env.SUPABASE_DB_PORT || 5432);
 
 // Check for password
 let dbPassword = process.env.SUPABASE_DB_PASSWORD || env.SUPABASE_DB_PASSWORD || '';
@@ -72,7 +72,7 @@ async function askPassword() {
 
 async function run() {
   if (!dbPassword) {
-    console.log(`Connecting to: Host=${dbHost}, User=${dbUser}, DB=${dbName}`);
+    console.log(`Connecting to: Host=${dbHost}, Port=${dbPort}, User=${dbUser}, DB=${dbName}`);
     dbPassword = await askPassword();
   }
 

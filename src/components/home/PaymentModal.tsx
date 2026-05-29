@@ -188,7 +188,7 @@ export default function PaymentModal({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -204,7 +204,7 @@ export default function PaymentModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.92, y: 20 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+          className="relative flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:max-h-[90vh] sm:max-w-lg sm:rounded-3xl"
         >
           {/* Header gradient strip */}
           <div className="h-1.5 w-full bg-gradient-to-r from-sage via-sage-light to-clay shrink-0" />
@@ -217,7 +217,7 @@ export default function PaymentModal({
             <X className="w-4 h-4" />
           </button>
 
-          <div className="p-8 overflow-y-auto flex-1">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-8">
             {/* === FORM STEP === */}
             {step === 'form' && (
               <div>
@@ -235,7 +235,7 @@ export default function PaymentModal({
                 </div>
 
                 {/* Amount summary */}
-                <div className="bg-sage/5 border border-sage/15 rounded-2xl p-4 mb-5 flex items-center justify-between">
+                <div className="mb-5 flex flex-col gap-2 rounded-2xl border border-sage/15 bg-sage/5 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm text-charcoal-light">Total due today</span>
                   <span className="font-serif text-2xl font-bold text-charcoal">
                     ${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -243,7 +243,7 @@ export default function PaymentModal({
                 </div>
 
                 {/* Card visual */}
-                <div className="relative h-36 rounded-2xl bg-gradient-to-br from-charcoal to-charcoal-light p-5 mb-5 overflow-hidden">
+                <div className="relative mb-5 h-32 overflow-hidden rounded-2xl bg-gradient-to-br from-charcoal to-charcoal-light p-4 sm:h-36 sm:p-5">
                   <div className="absolute inset-0 opacity-10"
                     style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, #7a9e7e 0%, transparent 50%), radial-gradient(circle at 20% 80%, #c4a882 0%, transparent 50%)' }}
                   />
@@ -255,7 +255,7 @@ export default function PaymentModal({
                       </span>
                     </div>
                     <div>
-                      <p className="text-white font-mono text-lg tracking-widest mb-2">
+                      <p className="mb-2 break-all font-mono text-base tracking-widest text-white sm:text-lg">
                         {form.cardNumber || '•••• •••• •••• ••••'}
                       </p>
                       <div className="flex items-end justify-between">
@@ -281,7 +281,7 @@ export default function PaymentModal({
                     <p className="text-[10px] uppercase tracking-widest text-charcoal-light font-bold mb-2 flex items-center gap-1.5">
                       <Mail className="w-3 h-3" /> Personal Information
                     </p>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <div>
                         <input
                           type="text"
@@ -334,7 +334,7 @@ export default function PaymentModal({
                         />
                         {errors.shippingAddress && <p className="text-red-500 text-xs mt-1">{errors.shippingAddress}</p>}
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div>
                           <div className="relative">
                             <input
@@ -359,7 +359,7 @@ export default function PaymentModal({
                           {errors.shippingState && <p className="text-red-500 text-xs mt-1">{errors.shippingState}</p>}
                         </div>
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div>
                           <div className="relative">
                             <input
@@ -413,7 +413,7 @@ export default function PaymentModal({
                     </div>
 
                     {/* Expiry + CVC */}
-                    <div className="grid grid-cols-2 gap-3 mt-3">
+                    <div className="mt-3 grid grid-cols-2 gap-3">
                       <div>
                         <input
                           type="text"
@@ -495,11 +495,11 @@ export default function PaymentModal({
                 </div>
 
                 <div className="p-5 bg-sage/5 border border-sage/10 rounded-2xl w-full max-w-sm text-left space-y-2.5">
-                  <div className="flex justify-between text-xs">
+                  <div className="flex flex-wrap justify-between gap-2 text-xs">
                     <span className="text-charcoal-light">Operations Status:</span>
                     <span className="font-bold text-sage-dark">AwaitingProcessing</span>
                   </div>
-                  <div className="flex justify-between text-xs">
+                  <div className="flex flex-wrap justify-between gap-2 text-xs">
                     <span className="text-charcoal-light">Onboarding Case ID:</span>
                     <span className="font-mono font-bold text-charcoal">{createdCaseNum || 'CTH-CASE-GEN'}</span>
                   </div>
@@ -543,17 +543,17 @@ export default function PaymentModal({
                     <li>Transaction blocked by your bank</li>
                   </ul>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex w-full flex-col gap-3 sm:flex-row">
                   <button
                     onClick={handleTryAnotherCard}
-                    className="px-6 py-3 rounded-xl bg-sage text-white font-semibold text-sm hover:bg-sage-dark transition-colors flex items-center gap-2"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-sage px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-sage-dark"
                   >
                     <CreditCard className="w-4 h-4" />
                     Try Another Card
                   </button>
                   <button
                     onClick={onClose}
-                    className="px-6 py-3 rounded-xl bg-sage/10 text-charcoal font-semibold text-sm hover:bg-sage/20 transition-colors"
+                    className="rounded-xl bg-sage/10 px-6 py-3 text-sm font-semibold text-charcoal transition-colors hover:bg-sage/20"
                   >
                     Cancel
                   </button>

@@ -400,9 +400,10 @@ export async function deletePayment(id: string) {
 
 /* ─── In-App Support ─── */
 
-function withSupportSummary(conversation: any) {
-  const messages = Array.isArray(conversation.support_messages)
-    ? [...conversation.support_messages].sort(
+function withSupportSummary(conversation: any, conversationMessages?: any[]) {
+  const rawMessages = conversationMessages ?? conversation.support_messages;
+  const messages = Array.isArray(rawMessages)
+    ? [...rawMessages].sort(
         (a: any, b: any) =>
           new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
       )
@@ -421,15 +422,41 @@ function withSupportSummary(conversation: any) {
 }
 
 export async function getAllSupportConversations() {
-  const { data, error } = await supabase
+  const { data: conversations, error } = await supabase
     .from("support_conversations")
-    .select(
-      "*, support_messages(id, conversation_id, sender_type, sender_name, body, read_by_admin, read_by_visitor, created_at)",
-    )
+    .select("*")
     .order("last_message_at", { ascending: false });
 
   if (error) throw error;
-  return (data || []).map(withSupportSummary);
+  if (!conversations?.length) return [];
+
+  const conversationIds = conversations.map(
+    (conversation: any) => conversation.id,
+  );
+  const { data: messages, error: messagesError } = await supabase
+    .from("support_messages")
+    .select(
+      "id, conversation_id, sender_type, sender_name, body, read_by_admin, read_by_visitor, created_at",
+    )
+    .in("conversation_id", conversationIds)
+    .order("created_at", { ascending: true });
+
+  if (messagesError) throw messagesError;
+
+  const messagesByConversation = new Map<string, any[]>();
+  for (const message of messages || []) {
+    const conversationMessages =
+      messagesByConversation.get(message.conversation_id) || [];
+    conversationMessages.push(message);
+    messagesByConversation.set(message.conversation_id, conversationMessages);
+  }
+
+  return conversations.map((conversation: any) =>
+    withSupportSummary(
+      conversation,
+      messagesByConversation.get(conversation.id) || [],
+    ),
+  );
 }
 
 export async function getSupportConversationById(id: string) {
