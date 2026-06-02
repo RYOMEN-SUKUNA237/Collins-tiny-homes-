@@ -18,6 +18,7 @@ import {
   Send,
   UserRound,
   XCircle,
+  ChevronLeft,
 } from "lucide-react";
 
 type SenderType = "visitor" | "admin" | "system";
@@ -304,8 +305,8 @@ export default function SupportInbox({
         </div>
       )}
 
-      <div className="grid min-h-170 overflow-hidden rounded-3xl border border-sage/10 bg-white shadow-sm lg:grid-cols-[360px_1fr]">
-        <aside className="border-b border-sage/10 bg-offwhite/60 lg:border-b-0 lg:border-r">
+      <div className="grid h-screen overflow-auto rounded-3xl border border-sage/10 bg-white shadow-sm lg:grid-cols-[360px_1fr] relative min-w-0">
+        <aside className={`border-b border-sage/10 bg-offwhite/60 lg:border-b-0 lg:border-r flex flex-col h-full relative z-10 ${activeId ? 'hidden' : ''} lg:block`}>
           <div className="border-b border-sage/10 px-5 py-4">
             <p className="text-xs font-bold uppercase tracking-widest text-charcoal-light">
               Inbox
@@ -373,7 +374,7 @@ export default function SupportInbox({
           </div>
         </aside>
 
-        <section className="flex min-h-170 flex-col">
+        <section className="flex flex-col flex-1 overflow-auto relative z-0">
           {!activeId ? (
             <div className="flex flex-1 items-center justify-center p-8 text-center text-sm text-charcoal-light">
               Select a support conversation to read and reply.
@@ -385,7 +386,14 @@ export default function SupportInbox({
             </div>
           ) : activeConversation ? (
             <>
-              <header className="border-b border-sage/10 px-6 py-5">
+              <header className="border-b border-sage/10 px-6 py-5 flex items-center gap-2 lg:gap-0">
+                <button
+                  type="button"
+                  onClick={() => setActiveId(null)}
+                  className="lg:hidden flex items-center gap-1 text-sm text-charcoal-light hover:text-sage"
+                >
+                  <ChevronLeft className="h-4 w-4" /> Back
+                </button>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-3">
