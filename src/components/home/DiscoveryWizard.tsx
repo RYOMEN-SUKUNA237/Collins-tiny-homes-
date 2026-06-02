@@ -229,32 +229,36 @@ export default function DiscoveryWizard({
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-charcoal/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-charcoal/70 backdrop-blur-md" onClick={onClose} />
 
       {/* Main Wizard Dialog */}
-      <div className="relative z-10 flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-sage/10 bg-white shadow-2xl sm:max-h-[90vh] sm:max-w-2xl sm:rounded-3xl">
-        <div className="h-1.5 w-full bg-gradient-to-r from-sage via-sage-light to-clay shrink-0" />
+      <div className="relative z-10 flex max-h-[100dvh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/70 glass-modal shadow-2xl sm:max-h-[90vh] sm:max-w-2xl sm:rounded-3xl">
+        {/* Rainbow progress bar */}
+        <div className="h-1 w-full bg-gradient-to-r from-sage via-clay to-sage-light shrink-0" />
 
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-sage/10 bg-sage/5 p-4 sm:p-6">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-sage/10 px-4 py-4 sm:px-6"
+          style={{ background: 'rgba(125,142,126,0.06)' }}>
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
-            <span className="text-xs font-mono uppercase bg-sage/20 text-sage-dark px-3 py-1 rounded-lg font-bold">
+            <span className="text-xs font-mono uppercase bg-gradient-to-r from-sage to-sage-dark text-white px-3 py-1 rounded-lg font-bold shadow-sm shadow-sage/20">
               Step {step} of 3
             </span>
             <h2 className="font-serif text-base font-semibold text-charcoal sm:text-lg">Discovery Wizard</h2>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-sage/10 text-charcoal-light hover:text-charcoal hover:bg-sage/25 flex items-center justify-center transition-all">
+          <button onClick={onClose} className="w-8 h-8 rounded-xl glass border border-white/40 text-charcoal-light hover:text-charcoal flex items-center justify-center transition-all hover:shadow-md">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Steps Bar */}
-        <div className="flex shrink-0 gap-2 border-b border-sage/10 bg-offwhite px-4 py-3 sm:px-8">
+        <div className="flex shrink-0 gap-2 border-b border-sage/10 px-4 py-3 sm:px-8" style={{ background: 'rgba(250,250,249,0.7)' }}>
           {[1, 2, 3].map((s) => (
             <div
               key={s}
-              className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                s <= step ? 'bg-sage' : 'bg-sage/10'
+              className={`h-1.5 flex-1 rounded-full transition-all duration-500 ${
+                s <= step
+                  ? 'bg-gradient-to-r from-sage to-sage-dark shadow-sm shadow-sage/30'
+                  : 'bg-sage/10'
               }`}
             />
           ))}
@@ -283,17 +287,19 @@ export default function DiscoveryWizard({
                   <button
                     key={item.id}
                     onClick={() => setGoal(item.id as any)}
-                    className={`p-5 rounded-2xl border-2 text-left transition-all duration-200 hover:-translate-y-0.5 shadow-sm flex flex-col justify-between ${
-                      goal === item.id 
-                        ? 'border-sage bg-sage/5 ring-4 ring-sage/10' 
-                        : 'border-sage/10 bg-white hover:border-sage/35'
+                    className={`p-5 rounded-2xl border-2 text-left transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between ${
+                      goal === item.id
+                        ? 'border-sage/40 glass-card ring-4 ring-sage/10 shadow-lg shadow-sage/10'
+                        : 'border-sage/10 bg-white/60 hover:border-sage/30 hover:shadow-md hover:shadow-sage/5'
                     }`}
                   >
                     <div>
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-4 ${
-                        goal === item.id ? 'bg-sage text-white' : 'bg-sage/10 text-sage'
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-4 transition-all duration-300 ${
+                        goal === item.id
+                          ? 'bg-gradient-to-br from-sage to-sage-dark text-white shadow-md shadow-sage/30'
+                          : 'bg-sage/10 text-sage'
                       }`}>
-                        <Check className={`w-4 h-4 ${goal === item.id ? 'opacity-100' : 'opacity-0'}`} />
+                        <Check className={`w-4 h-4 transition-opacity duration-200 ${goal === item.id ? 'opacity-100' : 'opacity-0'}`} />
                       </div>
                       <h4 className="font-serif font-bold text-charcoal text-base mb-1">{item.title}</h4>
                       <p className="text-xs text-charcoal-light leading-relaxed">{item.desc}</p>
@@ -327,10 +333,10 @@ export default function DiscoveryWizard({
                     <button
                       key={t.id}
                       onClick={() => setTimeline(t.id as any)}
-                      className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-colors ${
-                        timeline === t.id 
-                          ? 'border-sage bg-sage/5 text-sage-dark' 
-                          : 'border-sage/15 hover:border-sage/40 text-charcoal-light'
+                      className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-all duration-300 ${
+                        timeline === t.id
+                          ? 'border-sage/40 bg-gradient-to-br from-sage/10 to-sage/5 text-sage-dark shadow-sm shadow-sage/10'
+                          : 'border-sage/15 bg-white/60 hover:border-sage/35 hover:bg-sage/5 text-charcoal-light'
                       }`}
                     >
                       {t.label}
@@ -351,10 +357,10 @@ export default function DiscoveryWizard({
                     <button
                       key={l.id}
                       onClick={() => handleLandStatusChange(l.id as any)}
-                      className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-colors ${
-                        landOwnership === l.id 
-                          ? 'border-sage bg-sage/5 text-sage-dark' 
-                          : 'border-sage/15 hover:border-sage/40 text-charcoal-light'
+                      className={`py-3 px-4 rounded-xl border text-sm font-semibold transition-all duration-300 ${
+                        landOwnership === l.id
+                          ? 'border-sage/40 bg-gradient-to-br from-sage/10 to-sage/5 text-sage-dark shadow-sm shadow-sage/10'
+                          : 'border-sage/15 bg-white/60 hover:border-sage/35 hover:bg-sage/5 text-charcoal-light'
                       }`}
                     >
                       {l.label}
@@ -384,7 +390,7 @@ export default function DiscoveryWizard({
 
               {/* I OWN LAND — show Mapbox Map for location */}
               {landOwnership === 'owns' && (
-                <div className="space-y-3 p-5 bg-sage/5 border border-sage/10 rounded-2xl">
+                <div className="space-y-3 p-5 glass-inset rounded-2xl">
                   <h4 className="font-serif font-bold text-charcoal text-sm flex items-center gap-2 mb-1">
                     <MapPin className="w-4 h-4 text-sage" /> Land Location & Delivery Quote
                   </h4>
@@ -427,14 +433,16 @@ export default function DiscoveryWizard({
                   <button
                     key={item.id}
                     onClick={() => setPaymentMethod(item.id as any)}
-                    className={`p-4 rounded-xl border-2 text-left transition-colors flex flex-col justify-between ${
-                      paymentMethod === item.id 
-                        ? 'border-sage bg-sage/5' 
-                        : 'border-sage/15 bg-white hover:border-sage/35'
+                    className={`p-4 rounded-xl border-2 text-left transition-all duration-300 flex flex-col justify-between hover:-translate-y-0.5 ${
+                      paymentMethod === item.id
+                        ? 'border-sage/40 glass-card shadow-md shadow-sage/10'
+                        : 'border-sage/15 bg-white/70 hover:border-sage/30 hover:shadow-sm'
                     } ${item.id === 'deposit' ? 'sm:col-span-2' : ''}`}
                   >
                     <div>
-                      <h4 className="font-bold text-charcoal text-sm mb-1">{item.title}</h4>
+                      <h4 className={`font-bold text-sm mb-1 transition-colors ${
+                        paymentMethod === item.id ? 'text-sage-dark' : 'text-charcoal'
+                      }`}>{item.title}</h4>
                       <p className="text-[11px] text-charcoal-light leading-relaxed">{item.desc}</p>
                     </div>
                   </button>
@@ -442,7 +450,7 @@ export default function DiscoveryWizard({
               </div>
 
               {/* SLIDERS & LIVE AMORTIZATION DETAILS */}
-              <div className="p-5 bg-offwhite border border-sage/10 rounded-2xl space-y-4">
+              <div className="p-5 glass-inset rounded-2xl space-y-4">
                 {paymentMethod === 'financing' && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between text-xs font-bold uppercase text-charcoal-light">
@@ -584,10 +592,11 @@ export default function DiscoveryWizard({
         </div>
 
         {/* Footer controls */}
-        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-sage/10 bg-sage/5 p-4 sm:p-6">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-white/50 p-4 sm:p-6"
+          style={{ background: 'rgba(125,142,126,0.05)' }}>
           <button
             onClick={() => step > 1 ? setStep((s) => (s - 1) as any) : onClose()}
-            className="flex items-center gap-2 rounded-2xl border border-sage/20 bg-white px-4 py-3 text-sm font-semibold text-charcoal transition-colors hover:border-sage sm:px-5"
+            className="flex items-center gap-2 rounded-2xl glass border border-white/50 px-4 py-3 text-sm font-semibold text-charcoal transition-all hover:border-sage/30 hover:shadow-md sm:px-5"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>{step === 1 ? 'Cancel' : 'Back'}</span>
@@ -596,7 +605,7 @@ export default function DiscoveryWizard({
           {step < 3 ? (
             <button
               onClick={() => setStep((s) => (s + 1) as any)}
-              className="flex items-center gap-2 rounded-2xl bg-sage px-4 py-3 text-sm font-bold text-white shadow-lg shadow-sage/25 transition-all hover:bg-sage-dark sm:px-6"
+              className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-sage to-sage-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-sage/30 transition-all hover:shadow-sage/40 hover:-translate-y-0.5 active:translate-y-0 sm:px-6"
             >
               <span>Continue</span>
               <ArrowRight className="w-4 h-4" />
@@ -604,7 +613,7 @@ export default function DiscoveryWizard({
           ) : (
             <button
               onClick={handleFinishWizard}
-              className="flex items-center gap-2 rounded-2xl bg-sage px-4 py-3 text-sm font-bold text-white shadow-lg shadow-sage/25 transition-all hover:bg-sage-dark sm:px-6"
+              className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-sage to-sage-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-sage/30 transition-all hover:shadow-sage/40 hover:-translate-y-0.5 active:translate-y-0 glow-sage sm:px-6"
             >
               <span>Review & Pay</span>
               <ArrowRight className="w-4 h-4" />
@@ -619,14 +628,14 @@ export default function DiscoveryWizard({
       <AnimatePresence>
         {supportModal && (
           <div className="fixed inset-0 z-[130] flex items-end justify-center p-0 sm:items-center sm:p-4">
-            <div className="absolute inset-0 bg-charcoal/80" onClick={() => setSupportModal(false)} />
+            <div className="absolute inset-0 bg-charcoal/75 backdrop-blur-md" onClick={() => setSupportModal(false)} />
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 10 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
-              className="relative z-10 max-h-[100dvh] w-full overflow-hidden rounded-t-3xl border border-sage/15 bg-white shadow-2xl sm:max-w-md sm:rounded-3xl"
+              className="relative z-10 max-h-[100dvh] w-full overflow-hidden rounded-t-3xl border border-white/60 glass-modal shadow-2xl sm:max-w-md sm:rounded-3xl"
             >
-              <div className="h-1 w-full bg-gradient-to-r from-sage to-clay" />
+              <div className="h-1 w-full bg-gradient-to-r from-sage via-clay to-sage-light" />
               <div className="max-h-[calc(100dvh-0.25rem)] space-y-5 overflow-y-auto p-4 sm:p-8">
 
                 {/* PROMPT STEP */}

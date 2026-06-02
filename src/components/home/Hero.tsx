@@ -94,7 +94,7 @@ export default function Hero() {
             <div className="relative flex items-center gap-1 p-1 rounded-2xl glass-dark">
               {/* Animated pill */}
               <motion.div
-                className="absolute top-1 bottom-1 rounded-xl bg-sage shadow-lg"
+                className="absolute top-1 bottom-1 rounded-xl bg-gradient-to-br from-sage to-sage-dark border border-white/10 shadow-[0_4px_12px_rgba(74,93,75,0.35)]"
                 animate={{ x: activeMode === 'buy' ? 4 : 112 }}
                 transition={{ type: 'spring', damping: 28, stiffness: 350 }}
                 style={{ width: 104 }}

@@ -17,8 +17,18 @@ export default function BentoGrid({ saleListings, rentListings }: BentoGridProps
   const displayed = (activeMode === 'sale' ? saleListings : rentListings).slice(0, 4);
 
   return (
-    <section className="py-24 px-6 bg-offwhite" aria-labelledby="listings-heading">
-      <div className="max-w-7xl mx-auto">
+    <section
+      className="relative py-24 px-6 overflow-hidden"
+      style={{
+        background: 'linear-gradient(160deg, #FAFAF9 0%, #F2EFE9 50%, #EBE8E1 100%)'
+      }}
+      aria-labelledby="listings-heading"
+    >
+      {/* Decorative background blobs */}
+      <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-sage/6 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-[400px] h-[400px] rounded-full bg-clay/6 blur-3xl pointer-events-none" />
+
+      <div className="relative max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <motion.div
@@ -47,16 +57,16 @@ export default function BentoGrid({ saleListings, rentListings }: BentoGridProps
             className="flex items-center gap-4"
           >
             {/* Mode toggle */}
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-offwhite-dark border border-sage/15">
+            <div className="relative flex items-center gap-0.5 p-1 rounded-2xl glass border border-white/50 shadow-lg shadow-sage/5">
               {(['sale', 'rent'] as const).map((mode) => (
                 <button
                   key={mode}
                   id={`bento-${mode}`}
                   onClick={() => setActiveMode(mode)}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  className={`relative px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-350 ${
                     activeMode === mode
-                      ? 'bg-sage text-white shadow-sm shadow-sage/30'
-                      : 'text-charcoal-light hover:text-charcoal'
+                      ? 'bg-gradient-to-br from-sage to-sage-dark text-white shadow-lg shadow-sage/30 border border-white/20'
+                      : 'text-charcoal-light hover:text-charcoal hover:bg-white/40'
                   }`}
                 >
                   {mode === 'sale' ? 'Buy' : 'Rent'}
@@ -115,7 +125,7 @@ export default function BentoGrid({ saleListings, rentListings }: BentoGridProps
         >
           <Link
             href={`/listings?type=${activeMode}`}
-            className="flex items-center gap-2 px-8 py-3.5 rounded-2xl border-2 border-sage text-sage font-semibold hover:bg-sage hover:text-white transition-all duration-200"
+            className="flex items-center gap-2 px-8 py-3.5 rounded-2xl glass border border-sage/20 text-sage font-semibold hover:bg-sage hover:text-white hover:border-sage transition-all duration-300 shadow-md shadow-sage/10"
           >
             View All Homes
             <ArrowRight className="w-4 h-4" />

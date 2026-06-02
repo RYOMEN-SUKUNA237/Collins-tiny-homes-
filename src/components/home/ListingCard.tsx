@@ -26,10 +26,12 @@ export default function ListingCard({ listing, featured = false, index = 0 }: Li
     >
       <Link href={`/listings/${listing.id}`} className="block h-full group">
         <article
-          className={`listing-card relative overflow-hidden rounded-2xl bg-white border border-sage/10 shadow-sm h-full flex flex-col ${
+          className={`listing-card relative overflow-hidden rounded-2xl glass-card border border-white/60 h-full flex flex-col ${
             featured ? 'min-h-[520px]' : 'min-h-[380px]'
           }`}
         >
+          {/* Premium top accent */}
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-sage/60 via-sage-light/80 to-clay/40 z-10" />
           {/* Image */}
           <div className={`relative overflow-hidden ${featured ? 'h-72' : 'h-52'}`}>
             <Image
@@ -41,8 +43,8 @@ export default function ListingCard({ listing, featured = false, index = 0 }: Li
             />
 
             {/* Overlay on hover */}
-            <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/20 transition-all duration-500 flex items-center justify-center">
-              <span className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 px-5 py-2 rounded-xl glass text-charcoal text-sm font-semibold shadow-lg">
+            <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/15 transition-all duration-500 flex items-center justify-center">
+              <span className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 px-5 py-2 rounded-xl glass text-white text-sm font-semibold shadow-lg border border-white/30">
                 View Details →
               </span>
             </div>
@@ -122,7 +124,7 @@ export default function ListingCard({ listing, featured = false, index = 0 }: Li
             </div>
 
             {/* Price + CTA */}
-            <div className="flex items-end justify-between border-t border-sage/10 pt-4">
+            <div className="flex items-end justify-between border-t border-sage/10 pt-4 mt-auto">
               <div>
                 <p className="text-[11px] text-charcoal-light uppercase tracking-wider font-medium mb-0.5">
                   {isRent ? 'per night' : isBoth ? 'sale / rent' : 'asking price'}
@@ -136,7 +138,7 @@ export default function ListingCard({ listing, featured = false, index = 0 }: Li
                   )}
                 </p>
               </div>
-              <span className="text-xs font-semibold text-sage border border-sage/30 px-3 py-1.5 rounded-xl group-hover:bg-sage group-hover:text-white group-hover:border-sage transition-all duration-200">
+              <span className="text-xs font-semibold text-sage border border-sage/30 px-3 py-1.5 rounded-xl group-hover:bg-sage group-hover:text-white group-hover:border-sage transition-all duration-300 group-hover:shadow-md group-hover:shadow-sage/25">
                 {isRent ? 'Book Stay' : 'View Home'}
               </span>
             </div>

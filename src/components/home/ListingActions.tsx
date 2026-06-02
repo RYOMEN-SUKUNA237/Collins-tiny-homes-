@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import {
@@ -169,14 +169,16 @@ export default function ListingActions({
 
         {/* INTERACTIVE FINANCE CALCULATOR (FINANCING & RENT-TO-OWN SUMMARY) */}
         {(isSale || isBoth) && (
-          <div className="p-5 rounded-2xl border border-sage/10 bg-offwhite space-y-4 shadow-inner">
+          <div className="p-5 rounded-2xl glass-inset space-y-4">
             {/* Mode Selector Toggle */}
-            <div className="grid grid-cols-2 gap-1 p-1 bg-sage/10 rounded-xl">
+            <div className="relative grid grid-cols-2 gap-0.5 p-1 rounded-xl glass border border-white/50 shadow-md shadow-sage/5">
               <button
                 type="button"
                 onClick={() => setCalculatorMode('financing')}
-                className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all ${
-                  calculatorMode === 'financing' ? 'bg-white text-sage-dark shadow-sm' : 'text-charcoal-light hover:text-charcoal'
+                className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all duration-350 ${
+                  calculatorMode === 'financing'
+                    ? 'bg-gradient-to-br from-sage to-sage-dark text-white shadow-md shadow-sage/25 border border-white/15'
+                    : 'text-charcoal-light hover:text-charcoal hover:bg-white/50'
                 }`}
               >
                 Financing
@@ -184,8 +186,10 @@ export default function ListingActions({
               <button
                 type="button"
                 onClick={() => setCalculatorMode('rent_to_own')}
-                className={`py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all ${
-                  calculatorMode === 'rent_to_own' ? 'bg-white text-sage-dark shadow-sm' : 'text-charcoal-light hover:text-charcoal'
+                className={`py-2 px-2.5 rounded-lg text-xs font-bold transition-all duration-350 ${
+                  calculatorMode === 'rent_to_own'
+                    ? 'bg-gradient-to-br from-sage to-sage-dark text-white shadow-md shadow-sage/25 border border-white/15'
+                    : 'text-charcoal-light hover:text-charcoal hover:bg-white/50'
                 }`}
               >
                 Rent-to-Own
@@ -257,7 +261,7 @@ export default function ListingActions({
         )}
 
         {/* LOGISTICS & SHIPPING (PLACEMENT & DELIVERY SECTION) */}
-        <div className="p-5 rounded-2xl border border-sage/10 bg-sage/5 space-y-4">
+        <div className="p-5 rounded-2xl glass-card border border-white/60 space-y-4">
           <h4 className="font-serif font-bold text-charcoal text-sm flex items-center gap-2">
             <MapPin className="w-4 h-4 text-sage" /> Placement & Delivery
           </h4>
@@ -302,8 +306,9 @@ export default function ListingActions({
           )}
         </div>
 
-        <p className="text-center text-xs text-charcoal-light">
-          ðŸ”’ Secure Checkout Â· 256-Bit SSL Encrypted
+        <p className="text-center text-xs text-charcoal-light flex items-center justify-center gap-1.5">
+          <span className="inline-block w-3 h-3 rounded-full bg-sage/20 border border-sage/30" />
+          🔒 Secure Checkout · 256-Bit SSL Encrypted
         </p>
       </div>
 
