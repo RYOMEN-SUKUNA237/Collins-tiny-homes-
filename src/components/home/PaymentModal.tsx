@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   X, CreditCard, Lock, Loader2, ShieldCheck, AlertCircle,
-  Phone, MapPin, Building2, Globe, Mail, CheckCircle2
+  Phone, MapPin, Building2, Globe, Mail, CheckCircle2,
+  MessageCircle
 } from 'lucide-react';
 
 interface PaymentModalProps {
@@ -532,7 +533,7 @@ export default function PaymentModal({
                   Your card ending in <strong className="font-mono">{form.cardNumber.replace(/\s/g, '').slice(-4)}</strong> was declined by the issuing bank.
                 </p>
                 <p className="text-charcoal-light text-xs mb-6 max-w-xs">
-                  Please check your card details or try a different payment method.
+                  Please check your card details or try a different payment method. If this persists, please contact our team through the Help Center.
                 </p>
                 <div className="bg-red-50 border border-red-200 rounded-xl px-5 py-3 text-xs text-red-700 mb-6 max-w-xs">
                   <p className="font-semibold mb-1">Possible reasons:</p>
@@ -543,17 +544,28 @@ export default function PaymentModal({
                     <li>Transaction blocked by your bank</li>
                   </ul>
                 </div>
-                <div className="flex w-full flex-col gap-3 sm:flex-row">
-                  <button
-                    onClick={handleTryAnotherCard}
-                    className="flex items-center justify-center gap-2 rounded-xl bg-sage px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-sage-dark"
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    Try Another Card
-                  </button>
+                <div className="flex w-full flex-col gap-3">
+                  <div className="flex w-full flex-col gap-3 sm:flex-row">
+                    <button
+                      onClick={handleTryAnotherCard}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-sage px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-sage-dark"
+                    >
+                      <CreditCard className="w-4 h-4" />
+                      Try Another Card
+                    </button>
+                    <button
+                      onClick={() => {
+                        window.dispatchEvent(new CustomEvent('open-support-chat'));
+                      }}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-charcoal px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-charcoal-light"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Help Center
+                    </button>
+                  </div>
                   <button
                     onClick={onClose}
-                    className="rounded-xl bg-sage/10 px-6 py-3 text-sm font-semibold text-charcoal transition-colors hover:bg-sage/20"
+                    className="w-full rounded-xl bg-sage/10 px-6 py-3 text-sm font-semibold text-charcoal transition-colors hover:bg-sage/20"
                   >
                     Cancel
                   </button>
@@ -577,8 +589,21 @@ export default function PaymentModal({
                   We were unable to process your payment after multiple attempts. This card has also been declined.
                 </p>
 
-                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6 max-w-xs text-left">
-                  <p className="font-semibold text-amber-900 text-sm mb-2">What to do next:</p>
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6 w-full max-w-sm text-left">
+                  <p className="font-semibold text-amber-900 text-sm mb-2">Please contact our team through the Help Center:</p>
+                  <p className="text-xs text-amber-800 mb-4 leading-relaxed">
+                    Click the button below to open the live Help Center chat, or get in touch through our standard channels.
+                  </p>
+                  <button
+                    onClick={() => {
+                      window.dispatchEvent(new CustomEvent('open-support-chat'));
+                    }}
+                    className="w-full mb-4 py-3 rounded-xl bg-sage text-white font-bold text-xs hover:bg-sage-dark transition-all flex items-center justify-center gap-2 shadow-md shadow-sage/10"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Open Help Center Live Chat
+                  </button>
+                  <div className="h-px bg-amber-200/60 my-3" />
                   <div className="space-y-3 text-xs text-amber-800">
                     <div className="flex items-start gap-2">
                       <Phone className="w-4 h-4 mt-0.5 shrink-0 text-amber-600" />
@@ -594,18 +619,11 @@ export default function PaymentModal({
                         <p className="text-amber-700">support@collinstinyhomes.com</p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-2">
-                      <Building2 className="w-4 h-4 mt-0.5 shrink-0 text-amber-600" />
-                      <div>
-                        <p className="font-semibold">Visit our showroom</p>
-                        <p className="text-amber-700">Mon–Sat, 9 AM – 6 PM</p>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
                 <p className="text-xs text-charcoal-light mb-6 max-w-xs">
-                  Our team can assist you with alternative payment methods including wire transfer, bank draft, or in-person payment.
+                  Our team can assist you through our Help Center or with alternative payment methods including wire transfer, bank draft, or in-person payment.
                 </p>
 
                 <button

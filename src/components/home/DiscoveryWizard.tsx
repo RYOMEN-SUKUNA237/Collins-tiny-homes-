@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -7,7 +7,17 @@ import {
   DollarSign, Check, Phone, Mail, User,
   MessageCircle, Edit3, Send, Loader2
 } from 'lucide-react';
-import { getDeterministicShippingFee } from '@/lib/shipping';
+import dynamic from 'next/dynamic';
+
+const MapboxSelector = dynamic(() => import('./MapboxSelector'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-80 min-h-[320px] bg-offwhite border border-sage/15 rounded-2xl flex flex-col items-center justify-center gap-3">
+      <Loader2 className="w-8 h-8 text-sage animate-spin" />
+      <span className="text-xs text-charcoal-light font-medium">Loading premium HD map...</span>
+    </div>
+  )
+});
 
 interface DiscoveryWizardProps {
   listingId: string;
@@ -69,16 +79,6 @@ export default function DiscoveryWizard({
   // Step 3 State: Financials
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'financing' | 'rent_to_own' | 'deposit' | 'rent'>('financing');
   const [termMonths, setTermMonths] = useState(36); // Default 3-year term
-
-  const handleAddressChange = (addr: string) => {
-    setAddress(addr);
-    if (!addr.trim()) {
-      setShippingFee(0);
-    } else {
-      const fee = getDeterministicShippingFee(addr, homeType);
-      setShippingFee(fee);
-    }
-  };
 
   const handleLandStatusChange = (status: 'owns' | 'looking' | 'none') => {
     setLandOwnership(status);
@@ -171,16 +171,24 @@ export default function DiscoveryWizard({
   };
 
   // Calculations for Financial roadmap
-  const downPayment = price * 0.10; // 10% down
-  const loanAmount = price - downPayment;
-  const financingMonthly = loanAmount / termMonths;
   const cashTotal = price + shippingFee;
 
+  // Financing: total price includes base + shipping fee
+  const totalFinancePrice = price + shippingFee;
+  const downPayment = totalFinancePrice * 0.10; // 10% down
+  const loanAmount = totalFinancePrice - downPayment;
+  const financingMonthly = loanAmount / termMonths;
+
   // Rent-to-Own math
-  const rtoDownPayment = price * 0.10;
-  const rtoMonthlyRent = price * 0.012;
-  const rtoMonthlyEquity = (price * 0.90) / termMonths;
+  const totalRtoPrice = price + shippingFee;
+  const rtoDownPayment = totalRtoPrice * 0.10;
+  const rtoMonthlyRent = totalRtoPrice * 0.012;
+  const rtoMonthlyEquity = (totalRtoPrice * 0.90) / termMonths;
   const rtoTotalMonthly = rtoMonthlyRent + rtoMonthlyEquity;
+
+  // Rent upfront
+  const rentMonthly = price * 0.012;
+  const rentUpfront = (rentMonthly * 3) + shippingFee;
 
   const handleFinishWizard = () => {
     let finalType: 'full_purchase' | 'down_payment' | 'monthly_rent' = 'down_payment';
@@ -190,7 +198,7 @@ export default function DiscoveryWizard({
 
     if (paymentMethod === 'cash') {
       finalType = 'full_purchase';
-      finalAmount = price + shippingFee;
+      finalAmount = cashTotal;
     } else if (paymentMethod === 'deposit') {
       finalType = 'down_payment';
       finalAmount = 2500; // Flat reservation deposit
@@ -199,7 +207,7 @@ export default function DiscoveryWizard({
       finalAmount = rtoDownPayment; // Option deposit
     } else if (paymentMethod === 'rent') {
       finalType = 'monthly_rent';
-      finalAmount = (price * 0.012 * 3) + 1500;
+      finalAmount = rentUpfront; // 3 months rent + shippingFee
     } else {
       finalType = 'down_payment';
       finalAmount = downPayment;
@@ -367,37 +375,30 @@ export default function DiscoveryWizard({
                         onClick={() => { setPendingLandStatus(landOwnership as 'looking' | 'none'); setSupportStep('prompt'); setSupportModal(true); }}
                         className="mt-1.5 text-xs font-bold text-amber-900 underline"
                       >
-                        Talk to our support team â†’
+                        Talk to our support team →
                       </button>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* I OWN LAND â€” show address input for location */}
+              {/* I OWN LAND — show Mapbox Map for location */}
               {landOwnership === 'owns' && (
                 <div className="space-y-3 p-5 bg-sage/5 border border-sage/10 rounded-2xl">
-                  <h4 className="font-serif font-bold text-charcoal text-sm flex items-center gap-2">
+                  <h4 className="font-serif font-bold text-charcoal text-sm flex items-center gap-2 mb-1">
                     <MapPin className="w-4 h-4 text-sage" /> Land Location & Delivery Quote
                   </h4>
-                  <p className="text-xs text-charcoal-light">
-                    Enter your land's address or delivery region to get an instant shipping fee estimate ($1,500 flat).
+                  <p className="text-xs text-charcoal-light mb-4">
+                    Pin your land on the map or search for your location to get a dynamic shipping quote instantly.
                   </p>
 
-                  <input
-                    type="text"
-                    placeholder="Enter your delivery address..."
-                    value={address}
-                    onChange={(e) => handleAddressChange(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border border-sage/20 bg-white text-sm outline-none text-charcoal focus:border-sage"
+                  <MapboxSelector
+                    initialAddress={address}
+                    onLocationSelect={(data) => {
+                      setAddress(data.address);
+                      setShippingFee(data.shippingFee);
+                    }}
                   />
-
-                  {address && shippingFee > 0 && (
-                    <div className="mt-1 pt-3 border-t border-sage/10 flex items-center justify-between text-sm">
-                      <span className="text-charcoal-light">Estimated Delivery Fee:</span>
-                      <span className="font-serif font-bold text-sage-dark">${shippingFee.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
@@ -464,16 +465,22 @@ export default function DiscoveryWizard({
                         <span>Unit Base Price</span>
                         <span>${price.toLocaleString()}</span>
                       </div>
+                      {shippingFee > 0 && (
+                        <>
+                          <div className="flex items-center justify-between text-xs text-charcoal-light">
+                            <span>Logistics Shipping Quote</span>
+                            <span>${shippingFee.toLocaleString()}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs font-semibold text-charcoal">
+                            <span>Total Combined Cost</span>
+                            <span>${totalFinancePrice.toLocaleString()}</span>
+                          </div>
+                        </>
+                      )}
                       <div className="flex items-center justify-between text-xs text-charcoal-light">
                         <span>Down Payment Required (10%)</span>
                         <span>${downPayment.toLocaleString()}</span>
                       </div>
-                      {shippingFee > 0 && (
-                        <div className="flex items-center justify-between text-xs text-charcoal-light">
-                          <span>Logistics Shipping Quote</span>
-                          <span>${shippingFee.toLocaleString()}</span>
-                        </div>
-                      )}
                       <div className="flex items-center justify-between text-sm font-bold text-charcoal pt-2.5 border-t border-sage/10">
                         <span>Amortized Monthly Payment</span>
                         <span className="font-serif text-lg text-sage-dark">${financingMonthly.toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</span>
@@ -542,14 +549,16 @@ export default function DiscoveryWizard({
                       <span>3 Months Upfront Rent:</span>
                       <span>${Math.round(price * 0.012 * 3).toLocaleString()}</span>
                     </div>
-                    <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
-                      <span>Logistics Shipping/Delivery Fee:</span>
-                      <span>$1,500</span>
-                    </div>
+                    {shippingFee > 0 && (
+                      <div className="flex flex-wrap justify-between gap-2 text-charcoal-light">
+                        <span>Logistics Shipping/Delivery Fee:</span>
+                        <span>${shippingFee.toLocaleString()}</span>
+                      </div>
+                    )}
                     <div className="h-px bg-sage/10 my-1" />
                     <div className="flex flex-wrap justify-between gap-2 font-bold text-charcoal">
                       <span>Total Upfront Due Now:</span>
-                      <span className="font-serif text-lg text-sage-dark">${Math.round(price * 0.012 * 3 + 1500).toLocaleString()}</span>
+                      <span className="font-serif text-lg text-sage-dark">${rentUpfront.toLocaleString()}</span>
                     </div>
                     <p className="text-[10px] text-charcoal-light mt-1 leading-relaxed">
                       You are choosing strict monthly rental. Pay 3 months upfront + delivery fee today, then standard monthly rent of ${Math.round(price * 0.012).toLocaleString()}/mo.

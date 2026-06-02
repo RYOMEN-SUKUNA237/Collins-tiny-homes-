@@ -4,18 +4,16 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion } from 'motion/react';
-import { Search, MapPin, ChevronDown } from 'lucide-react';
+import { Search, ChevronDown } from 'lucide-react';
 
 export default function Hero() {
   const router = useRouter();
   const [activeMode, setActiveMode] = useState<'buy' | 'rent'>('buy');
-  const [location, setLocation] = useState('');
   const [budget, setBudget] = useState('');
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     params.set('type', activeMode === 'buy' ? 'sale' : 'rent');
-    if (location.trim()) params.set('search', location.trim());
     if (budget) {
       const [min, max] = budget.split('-');
       if (min) params.set('minPrice', min);
@@ -124,24 +122,8 @@ export default function Hero() {
 
           {/* Search Bar */}
           <div className="glass rounded-2xl p-2 flex flex-col sm:flex-row gap-2 shadow-2xl">
-            {/* Location input */}
-            <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-offwhite-dark/60 transition-colors cursor-text">
-              <MapPin className="w-4 h-4 text-sage shrink-0" />
-              <input
-                id="location-search"
-                type="text"
-                placeholder="State, city, or region..."
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="flex-1 bg-transparent text-charcoal text-sm placeholder:text-charcoal-light/60 outline-none"
-              />
-            </div>
-
-            <div className="w-px bg-sage/20 hidden sm:block self-stretch" />
-
             {/* Price filter */}
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-offwhite-dark/60 transition-colors sm:min-w-[160px]">
+            <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-offwhite-dark/60 transition-colors">
               <span className="text-sage text-sm font-medium">Budget</span>
               <select
                 id="budget-filter"
