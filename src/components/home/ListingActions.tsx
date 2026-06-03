@@ -135,7 +135,7 @@ export default function ListingActions({
             >
               <span className="flex min-w-0 items-center gap-2">
                 <Home className="h-4 w-4 shrink-0" />
-                Inquire / Buy â€” ${price.toLocaleString()}
+                Inquire / Buy - ${price.toLocaleString()}
               </span>
               <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
             </button>

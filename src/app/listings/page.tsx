@@ -56,11 +56,13 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
 
             {/* Mode toggle */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1 p-1 rounded-xl bg-offwhite-dark border border-sage/15">
+              <div className="flex items-center gap-1 p-1 rounded-xl glass border border-white/50 shadow-md">
                 <Link
                   href="/listings?type=sale"
                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                    mode === 'sale' ? 'bg-sage text-white shadow-sm' : 'text-charcoal-light hover:text-charcoal'
+                    mode === 'sale'
+                      ? 'bg-gradient-to-br from-sage to-sage-dark text-white shadow-sm'
+                      : 'text-charcoal-light hover:text-charcoal hover:bg-white/40'
                   }`}
                 >
                   Buy
@@ -68,7 +70,9 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
                 <Link
                   href="/listings?type=rent"
                   className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                    mode === 'rent' ? 'bg-clay text-white shadow-sm' : 'text-charcoal-light hover:text-charcoal'
+                    mode === 'rent'
+                      ? 'bg-gradient-to-br from-clay to-clay/90 text-white shadow-sm'
+                      : 'text-charcoal-light hover:text-charcoal hover:bg-white/40'
                   }`}
                 >
                   Rent

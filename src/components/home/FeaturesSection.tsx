@@ -101,7 +101,7 @@ export default function FeaturesSection() {
                 transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
                 className={`${feature.span} group`}
               >
-                <div className="h-full p-7 rounded-2xl bg-white border border-sage/10 shadow-sm hover:shadow-md hover:border-sage/20 transition-all duration-300 hover:-translate-y-1 flex flex-col">
+                <div className="h-full p-7 rounded-2xl glass-card border border-white/60 shadow-sm hover:shadow-md hover:border-white/90 hover:shadow-sage/5 transition-all duration-300 hover:-translate-y-1 flex flex-col">
                   <div className="w-12 h-12 rounded-xl bg-sage/10 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-sage/20 transition-all duration-300">
                     <span className="text-2xl">{feature.emoji}</span>
                   </div>

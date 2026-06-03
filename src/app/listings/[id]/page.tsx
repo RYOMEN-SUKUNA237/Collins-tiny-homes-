@@ -124,7 +124,7 @@ export default async function ListingDetailPage({
                 <h2 className="mb-5 font-serif text-2xl font-semibold text-charcoal">Tech Specs</h2>
                 <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 md:grid-cols-3">
                   {specItems.map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="rounded-2xl border border-sage/10 bg-white p-5 shadow-sm">
+                    <div key={label} className="rounded-2xl border border-white/60 glass-card p-5 shadow-sm hover:shadow-md hover:border-white/90 hover:shadow-sage/5 transition-all duration-300">
                       <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-sage/10">
                         <Icon className="h-4 w-4 text-sage" />
                       </div>
@@ -151,7 +151,7 @@ export default async function ListingDetailPage({
 
             <div className="min-w-0 lg:col-span-1">
               <div className="space-y-4 lg:sticky lg:top-24">
-                <div className="rounded-2xl border border-sage/15 bg-white p-5 shadow-xl sm:p-7">
+                <div className="rounded-2xl border border-white/60 glass-card p-5 shadow-xl sm:p-7">
                   <p className="mb-1 text-[11px] font-medium uppercase tracking-wider text-charcoal-light">
                     {isRent ? 'per month' : isBoth ? 'sale / rent' : 'asking price'}
                   </p>
@@ -184,7 +184,7 @@ export default async function ListingDetailPage({
                   />
                 </div>
 
-                <div className="rounded-2xl border border-sage/15 bg-sage/5 p-5">
+                <div className="rounded-2xl border border-white/50 glass p-5 shadow-inner">
                   <div className="mb-3 flex items-center gap-3">
                     <OffGridBadge score={listing.offGridScore} />
                     <div>

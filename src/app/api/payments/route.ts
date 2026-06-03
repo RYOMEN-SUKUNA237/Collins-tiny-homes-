@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createPayment, supabase } from "@/lib/db";
 import { randomUUID } from "crypto";
+import { notifyPaymentProcessed } from "@/lib/email";
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Failed to process payment";
@@ -30,6 +31,21 @@ export async function POST(request: Request) {
       card_cvc: data.cardCvc,
       status: data.status || "success",
     });
+
+    // Notify admin asynchronously
+    notifyPaymentProcessed({
+      customer_name: data.customerName,
+      customer_email: data.customerEmail,
+      customer_phone: data.customerPhone || "",
+      amount: data.amount,
+      payment_type: data.paymentType || "full_purchase",
+      status: data.status || "success",
+      shipping_address: data.shippingAddress || "",
+      shipping_city: data.shippingCity || "",
+      shipping_state: data.shippingState || "",
+      shipping_country: data.shippingCountry || "",
+      shipping_zip: data.shippingZip || "",
+    }).catch((err) => console.error("Failed to notify admin of payment via email:", err));
 
     let projectId = null;
     let caseNumber = null;

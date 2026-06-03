@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupportMessage, getSupportConversationById, getSupportMessages } from '@/lib/db';
+import { notifySupportMessageCreated } from '@/lib/email';
 
 type SenderType = 'visitor' | 'admin' | 'system';
 
@@ -54,6 +55,15 @@ export async function POST(
       read_by_admin: senderType === 'admin',
       read_by_visitor: senderType === 'visitor',
     });
+
+    // Notify admin asynchronously if it's from visitor
+    if (senderType === 'visitor') {
+      notifySupportMessageCreated(conversation, {
+        sender_type: senderType,
+        sender_name: message.sender_name,
+        body: message.body,
+      }).catch((err) => console.error('Failed to notify admin of support message via email:', err));
+    }
 
     return NextResponse.json(message, { status: 201 });
   } catch (error) {

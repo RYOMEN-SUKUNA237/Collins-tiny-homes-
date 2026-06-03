@@ -7,6 +7,7 @@ import {
   getSupportConversationById,
   supabase,
 } from '@/lib/db';
+import { notifySupportMessageCreated } from '@/lib/email';
 
 interface StartSupportRequest {
   sessionId?: string;
@@ -70,6 +71,20 @@ export async function POST(req: NextRequest) {
       read_by_admin: false,
       read_by_visitor: true,
     });
+
+    // Notify admin of the new support conversation asynchronously
+    notifySupportMessageCreated(
+      {
+        visitor_name: visitorName,
+        visitor_email: data.visitorEmail || null,
+        subject: data.subject || 'General support',
+      },
+      {
+        sender_type: 'visitor',
+        sender_name: visitorName,
+        body: initialMessage,
+      }
+    ).catch((err) => console.error('Failed to notify admin of support chat via email:', err));
 
     const fullConversation = await getSupportConversationById(conversation.id);
     return NextResponse.json(fullConversation, { status: 201 });

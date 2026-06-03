@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllInquiries, createInquiry } from "@/lib/db";
 import { v4 as uuidv4 } from "uuid";
+import { notifyInquiryCreated } from "@/lib/email";
 
 export async function GET(req: NextRequest) {
   try {
@@ -52,6 +53,19 @@ export async function POST(req: NextRequest) {
       finance_term_months: data.financeTermMonths || null,
       status: "new",
     });
+
+    // Notify admin asynchronously
+    notifyInquiryCreated({
+      name: data.name,
+      email: data.email,
+      phone: data.phone || null,
+      message: data.message,
+      inquiry_type: data.inquiryType,
+      finance_plan: data.financePlan || null,
+      finance_down_payment: data.financeDownPayment || null,
+      finance_monthly_total: data.financeMonthlyTotal || null,
+      finance_term_months: data.financeTermMonths || null,
+    }).catch((err) => console.error("Failed to notify admin of inquiry via email:", err));
 
     return NextResponse.json({ success: true, id: newId });
   } catch (error) {

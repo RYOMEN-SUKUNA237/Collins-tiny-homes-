@@ -42,12 +42,6 @@ export default function ListingCard({ listing, featured = false, index = 0 }: Li
               sizes={featured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, 33vw'}
             />
 
-            {/* Overlay on hover */}
-            <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/15 transition-all duration-500 flex items-center justify-center">
-              <span className="opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-300 px-5 py-2 rounded-xl glass text-white text-sm font-semibold shadow-lg border border-white/30">
-                View Details →
-              </span>
-            </div>
 
             {/* Top badges */}
             <div className="absolute top-3 left-3 flex gap-2">
