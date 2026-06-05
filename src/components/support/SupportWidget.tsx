@@ -187,8 +187,13 @@ export default function SupportWidget() {
     event.preventDefault();
     setError("");
 
-    if (!form.name.trim() || !form.message.trim()) {
-      setError("Please add your name and a short message so we can help.");
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+      setError("Please add your name, email, and a message so we can help.");
+      return;
+    }
+
+    if (!form.email.includes("@") || !form.email.includes(".")) {
+      setError("Please enter a valid email address.");
       return;
     }
 
@@ -200,7 +205,7 @@ export default function SupportWidget() {
         body: JSON.stringify({
           sessionId,
           visitorName: form.name.trim(),
-          visitorEmail: form.email.trim() || null,
+          visitorEmail: form.email.trim(),
           subject: form.subject.trim() || "General support",
           initialMessage: form.message.trim(),
         }),
@@ -306,15 +311,16 @@ export default function SupportWidget() {
                   className="rounded-2xl border border-sage/15 px-4 py-3 text-sm text-charcoal placeholder:text-charcoal-light/50 focus:border-sage"
                   maxLength={80}
                 />
-                <input
+                 <input
                   value={form.email}
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, email: event.target.value }))
                   }
-                  placeholder="Email (optional)"
+                  placeholder="Your email address"
                   type="email"
                   className="rounded-2xl border border-sage/15 px-4 py-3 text-sm text-charcoal placeholder:text-charcoal-light/50 focus:border-sage"
                   maxLength={160}
+                  required
                 />
                 <input
                   value={form.subject}

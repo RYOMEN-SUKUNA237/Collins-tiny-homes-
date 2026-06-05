@@ -48,16 +48,21 @@ export async function POST(req: NextRequest) {
   try {
     const data = await req.json() as StartSupportRequest;
     const visitorName = data.visitorName?.trim();
+    const visitorEmail = data.visitorEmail?.trim();
     const initialMessage = data.initialMessage?.trim();
 
-    if (!visitorName || !initialMessage) {
-      return NextResponse.json({ error: 'Name and message are required' }, { status: 400 });
+    if (!visitorName || !visitorEmail || !initialMessage) {
+      return NextResponse.json({ error: 'Name, email, and message are required' }, { status: 400 });
+    }
+
+    if (!visitorEmail.includes('@') || !visitorEmail.includes('.')) {
+      return NextResponse.json({ error: 'Please enter a valid email address' }, { status: 400 });
     }
 
     const conversation = await createSupportConversation({
       session_id: data.sessionId || uuidv4(),
       visitor_name: visitorName.slice(0, 80),
-      visitor_email: data.visitorEmail?.trim() ? data.visitorEmail.trim().slice(0, 160) : null,
+      visitor_email: visitorEmail.slice(0, 160),
       subject: (data.subject?.trim() || 'General support').slice(0, 120),
       status: 'open',
       last_message_at: new Date().toISOString(),

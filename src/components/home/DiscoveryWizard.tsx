@@ -42,7 +42,7 @@ function generateSupportMessage(name: string, listingTitle: string, landStatus: 
   const intro = landStatus === 'looking'
     ? `Hi, my name is ${name || '[Your Name]'}. I am interested in the "${listingTitle}" and I am currently searching for a suitable land parcel to place it on.`
     : `Hi, my name is ${name || '[Your Name]'}. I am interested in the "${listingTitle}" but I have not yet found a land parcel to place it on.`;
-  return `${intro} I would love to discuss my options with your team â€” including available land parcels, placement logistics, zoning support, and any land-lease arrangements you may offer. Please reach out at your earliest convenience. Thank you!`;
+  return `${intro} I would love to discuss my options with your team - including available land parcels, placement logistics, zoning support, and any land-lease arrangements you may offer. Please reach out at your earliest convenience. Thank you!`;
 }
 
 export default function DiscoveryWizard({
@@ -119,7 +119,7 @@ export default function DiscoveryWizard({
         body: JSON.stringify({
           visitorName: supportForm.name,
           visitorEmail: supportForm.email,
-          subject: `Land Search Inquiry â€” ${listingTitle}`,
+          subject: `Land Search Inquiry - ${listingTitle}`,
           sessionId: `wizard-${Date.now()}`,
           initialMessage: supportMessage,
         }),
@@ -622,9 +622,9 @@ export default function DiscoveryWizard({
         </div>
       </div>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-          LAND SUPPORT MODAL â€” Talk to Support flow
-      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* ────────────────────────────────────────────────────────────
+          LAND SUPPORT MODAL - Talk to Support flow
+      ──────────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {supportModal && (
           <div className="fixed inset-0 z-[130] flex items-end justify-center p-0 sm:items-center sm:p-4">
@@ -651,7 +651,7 @@ export default function DiscoveryWizard({
                         </h3>
                         <p className="text-xs text-charcoal-light mt-1 leading-relaxed">
                           {pendingLandStatus === 'looking'
-                            ? "No worries â€” our support team has access to vetted land parcels and lease options across all regions. Would you like us to help you find the right spot?"
+                            ? "No worries - our support team has access to vetted land parcels and lease options across all regions. Would you like us to help you find the right spot?"
                             : "Our specialists can connect you with available land parcels, zoning support, and lease-to-own land arrangements. Want to start a conversation?"}
                         </p>
                       </div>
@@ -684,7 +684,7 @@ export default function DiscoveryWizard({
                         Draft Your Message
                       </h3>
                       <p className="text-xs text-charcoal-light mt-1">
-                        We've written a message for you â€” feel free to edit it before sending.
+                        We've written a message for you - feel free to edit it before sending.
                       </p>
                     </div>
 
