@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupportMessage, getSupportConversationById, getSupportMessages } from '@/lib/db';
-import { notifySupportMessageCreated } from '@/lib/email';
+import { notifySupportMessageCreated, notifyClientOfSupportReply } from '@/lib/email';
 
 type SenderType = 'visitor' | 'admin' | 'system';
 
@@ -65,9 +65,18 @@ export async function POST(
       }).catch((err) => console.error('Failed to notify admin of support message via email:', err));
     }
 
+    // Notify client asynchronously if it's from admin
+    if (senderType === 'admin') {
+      notifyClientOfSupportReply(conversation, {
+        sender_name: message.sender_name,
+        body: message.body,
+      }).catch((err) => console.error('Failed to notify client of admin reply via email:', err));
+    }
+
     return NextResponse.json(message, { status: 201 });
   } catch (error) {
     console.error('Error creating support message:', error);
     return NextResponse.json({ error: 'Failed to create support message' }, { status: 500 });
   }
 }
+

@@ -237,3 +237,57 @@ export async function notifySupportMessageCreated(conversation: {
   `;
   return sendAdminEmailNotification(subject, html);
 }
+
+/**
+ * Notify client of an admin reply in a support conversation
+ */
+export async function notifyClientOfSupportReply(conversation: {
+  visitor_name: string;
+  visitor_email?: string | null;
+  subject: string;
+}, message: {
+  sender_name: string;
+  body: string;
+}) {
+  if (!conversation.visitor_email) {
+    console.log('Skipping client notification because visitor_email is not provided');
+    return false;
+  }
+
+  const subject = `Reply to your support request: ${conversation.subject}`;
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #fafaf9;">
+      <h2 style="color: #4b634c; font-family: serif; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0;">Support Update — Collins Tiny Homes</h2>
+      
+      <p style="color: #1a202c; font-size: 16px;">Hello ${conversation.visitor_name},</p>
+      
+      <p style="color: #1a202c; font-size: 15px; line-height: 1.6;">Our support team has replied to your request regarding <strong>"${conversation.subject}"</strong>:</p>
+      
+      <div style="margin-top: 20px; margin-bottom: 20px; padding: 15px; background-color: #ffffff; border-radius: 8px; border: 1px solid #cbd5e1; border-left: 4px solid #4b634c; color: #334155; font-size: 15px; line-height: 1.6; white-space: pre-wrap;">${message.body}</div>
+      
+      <div style="margin-top: 30px; text-align: center;">
+        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/support" style="display: inline-block; background-color: #4b634c; color: white; padding: 10px 22px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px;">View Support Chat</a>
+      </div>
+      
+      <div style="margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 12px; color: #718096; text-align: center;">
+        This email was sent from Collins Tiny Homes. If you have any further questions, please reply directly to this email or visit our website.
+      </div>
+    </div>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: `"Collins Tiny Homes" <${SMTP_USER}>`,
+      to: conversation.visitor_email,
+      replyTo: SMTP_USER,
+      subject: subject,
+      html: html,
+    });
+    console.log('Client support notification email sent successfully:', info.messageId);
+    return true;
+  } catch (error) {
+    console.error('Failed to send client support notification email:', error);
+    return false;
+  }
+}
+
