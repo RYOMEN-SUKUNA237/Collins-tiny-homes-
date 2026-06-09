@@ -4,17 +4,24 @@ import Link from "next/link";
 import { getAllListings } from "@/lib/db";
 import { Plus, Edit2, Eye } from "lucide-react";
 import DeleteButton from "@/components/admin/DeleteButton";
+import SearchInput from "@/components/ui/SearchInput";
 
 export const metadata: Metadata = { title: "Manage Listings | Admin" };
 export const dynamic = "force-dynamic";
 
-export default async function AdminListingsPage() {
-  const listings = await getAllListings();
+interface AdminListingsPageProps {
+  searchParams: Promise<{ search?: string }>;
+}
+
+export default async function AdminListingsPage({ searchParams }: AdminListingsPageProps) {
+  const params = await searchParams;
+  const searchQuery = params.search || "";
+  const listings = await getAllListings({ search: searchQuery });
 
   return (
     <>
       <header className="lg:sticky lg:top-0 z-30 bg-white/90 backdrop-blur-sm border-b border-sage/10 px-4 py-4 sm:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+        <div className="flex-1 min-w-0">
           <h1 className="font-serif text-2xl text-charcoal font-semibold">
             Listings
           </h1>
@@ -22,13 +29,16 @@ export default async function AdminListingsPage() {
             {listings.length} total listing{listings.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <Link
-          href="/admin/listings/new"
-          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-sage text-white text-sm font-semibold shadow-lg shadow-sage/25 hover:bg-sage-dark transition-all duration-200 w-full sm:w-auto shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          New Listing
-        </Link>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+          <SearchInput placeholder="Search by model name..." className="w-full sm:w-64" />
+          <Link
+            href="/admin/listings/new"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-sage text-white text-sm font-semibold shadow-lg shadow-sage/25 hover:bg-sage-dark transition-all duration-200 shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            New Listing
+          </Link>
+        </div>
       </header>
 
       <div className="p-4 sm:p-8">

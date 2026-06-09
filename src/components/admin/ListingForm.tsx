@@ -281,15 +281,31 @@ export default function ListingForm({ mode, listing }: ListingFormProps) {
             </select>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => set('isFeatured', !form.isFeatured)}
-            className={`w-10 h-6 rounded-full transition-colors duration-200 ${form.isFeatured ? 'bg-sage' : 'bg-gray-200'} relative shrink-0`}
-          >
-            <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${form.isFeatured ? 'translate-x-5' : 'translate-x-1'}`} />
-          </button>
-          <label className="text-sm text-charcoal font-medium">Feature on homepage</label>
+        <div className="flex flex-col gap-4 pt-3 border-t border-sage/10">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => set('isFeatured', !form.isFeatured)}
+              className={`w-10 h-6 rounded-full transition-colors duration-200 ${form.isFeatured ? 'bg-sage' : 'bg-gray-200'} relative shrink-0`}
+            >
+              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${form.isFeatured ? 'translate-x-5' : 'translate-x-1'}`} />
+            </button>
+            <label className="text-sm text-charcoal font-medium">Feature on homepage</label>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => set('status', form.status === 'sold' ? 'active' : 'sold')}
+              className={`w-10 h-6 rounded-full transition-colors duration-200 ${form.status === 'sold' ? 'bg-red-500' : 'bg-gray-200'} relative shrink-0`}
+            >
+              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${form.status === 'sold' ? 'translate-x-5' : 'translate-x-1'}`} />
+            </button>
+            <label className="text-sm text-charcoal font-medium flex items-center gap-2">
+              Mark as Sold
+              {form.status === 'sold' && <span className="px-1.5 py-0.5 rounded bg-red-100 text-red-700 text-[10px] font-bold uppercase tracking-wider">Sold</span>}
+            </label>
+          </div>
         </div>
       </div>
 

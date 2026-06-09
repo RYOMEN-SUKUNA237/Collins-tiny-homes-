@@ -38,24 +38,32 @@ export default function ListingCard({ listing, featured = false, index = 0 }: Li
               src={listing.images[0]}
               alt={listing.title}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              className={`object-cover group-hover:scale-105 transition-transform duration-700 ease-out ${
+                listing.status === 'sold' ? 'brightness-[0.7] saturate-[0.6] grayscale-[20%]' : ''
+              }`}
               sizes={featured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, 33vw'}
             />
 
 
             {/* Top badges */}
             <div className="absolute top-3 left-3 flex gap-2">
-              <span
-                className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide shadow ${
-                  isRent
-                    ? 'bg-clay text-white'
-                    : isBoth
-                    ? 'bg-gradient-to-r from-sage to-clay text-white'
-                    : 'bg-sage text-white'
-                }`}
-              >
-                {isRent ? 'Rent' : isBoth ? 'Sale & Rent' : 'For Sale'}
-              </span>
+              {listing.status === 'sold' ? (
+                <span className="px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide bg-red-600 text-white shadow-md">
+                  SOLD
+                </span>
+              ) : (
+                <span
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide shadow ${
+                    isRent
+                      ? 'bg-clay text-white'
+                      : isBoth
+                      ? 'bg-gradient-to-r from-sage to-clay text-white'
+                      : 'bg-sage text-white'
+                  }`}
+                >
+                  {isRent ? 'Rent' : isBoth ? 'Sale & Rent' : 'For Sale'}
+                </span>
+              )}
               {listing.homeType === 'on-wheels' && (
                 <span className="px-2.5 py-1 rounded-lg bg-charcoal/70 text-white text-xs font-medium backdrop-blur-sm">
                   🚐 THOW

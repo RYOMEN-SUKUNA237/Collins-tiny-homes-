@@ -6,6 +6,7 @@ import ListingCard from '@/components/home/ListingCard';
 import { SlidersHorizontal } from 'lucide-react';
 import { getAllListings } from '@/lib/db';
 import { dbRowToListing } from '@/lib/db-adapter';
+import SearchInput from '@/components/ui/SearchInput';
 
 export const metadata: Metadata = {
   title: 'Browse Tiny Homes',
@@ -27,18 +28,18 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   const maxPrice = params.maxPrice ? parseInt(params.maxPrice) : undefined;
   const searchQuery = params.search;
 
-  // Pull from Supabase DB
+  // Pull from Supabase DB (include both active and sold status, filtering other statuses out)
   const rows = await getAllListings({
     priceType: mode,
     homeType: homeTypeFilter,
     minOffGrid: minOffGrid > 0 ? minOffGrid : undefined,
-    status: 'active',
     minPrice,
     maxPrice,
     search: searchQuery,
   }) as any[];
 
-  const listings = rows.map(dbRowToListing);
+  const activeAndSold = rows.filter(r => r.status === 'active' || r.status === 'sold');
+  const listings = activeAndSold.map(dbRowToListing);
 
   return (
     <>
@@ -54,8 +55,9 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
               <p className="text-charcoal-light mt-2">{listings.length} listing{listings.length !== 1 ? 's' : ''} found</p>
             </div>
 
-            {/* Mode toggle */}
-            <div className="flex items-center gap-3">
+            {/* Mode toggle and Search */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+              <SearchInput placeholder="Search by model name..." className="w-full sm:w-64" />
               <div className="flex items-center gap-1 p-1 rounded-xl glass border border-white/50 shadow-md">
                 <Link
                   href="/listings?type=sale"

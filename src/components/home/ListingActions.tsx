@@ -18,6 +18,7 @@ interface ListingActionsProps {
   financeTermMonths?: number;
   priceType: string; // 'sale' | 'rent' | 'both'
   homeType: string; // 'on-wheels' | 'foundation'
+  status?: string;
 }
 
 type PaymentType = 'full_purchase' | 'down_payment' | 'monthly_rent';
@@ -31,6 +32,7 @@ export default function ListingActions({
   financeTermMonths,
   priceType,
   homeType,
+  status,
 }: ListingActionsProps) {
   const [modal, setModal] = useState<{ open: boolean; type: PaymentType; amount: number }>({
     open: false, type: 'full_purchase', amount: 0,
@@ -121,6 +123,37 @@ export default function ListingActions({
   const openPayment = (type: PaymentType, amount: number) => {
     setModal({ open: true, type, amount });
   };
+
+  const isSold = status === 'sold';
+
+  if (isSold) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-center gap-2 rounded-2xl bg-red-500/10 border border-red-500/25 px-5 py-4 text-center font-bold text-red-600 text-base uppercase tracking-wider shadow-inner">
+          🔒 Sold — No Longer Available
+        </div>
+        <p className="text-xs text-charcoal-light text-center leading-relaxed">
+          This model has already been purchased. Contact our team to request a custom order of this build style.
+        </p>
+        <button
+          onClick={() => setWizardOpen(true)}
+          className="group flex w-full items-center justify-center gap-2 rounded-xl border border-sage/35 bg-white py-3 text-center text-sm font-semibold text-sage hover:bg-sage/5 hover:text-sage-dark hover:border-sage transition-all duration-200"
+        >
+          Inquire about custom build
+        </button>
+        {wizardOpen && (
+          <DiscoveryWizard
+            listingId={listingId}
+            listingTitle={listingTitle}
+            price={price}
+            homeType={homeType}
+            onClose={() => setWizardOpen(false)}
+            onProceedToPayment={(details) => openPayment('full_purchase', price)}
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
     <>
