@@ -85,6 +85,7 @@ export default async function AdminLandsPage() {
                                 width={48}
                                 height={48}
                                 className="w-full h-full object-cover"
+                                unoptimized={land.cover_image.startsWith('http')}
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">

@@ -42,6 +42,7 @@ export default function ListingCard({ listing, featured = false, index = 0 }: Li
                 listing.status === 'sold' ? 'brightness-[0.7] saturate-[0.6] grayscale-[20%]' : ''
               }`}
               sizes={featured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 768px) 100vw, 33vw'}
+              unoptimized={listing.images[0]?.startsWith('http')}
             />
 
 

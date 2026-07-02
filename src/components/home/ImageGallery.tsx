@@ -48,7 +48,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
               fill
               priority
               className="object-cover"
-              unoptimized={images[activeIdx].startsWith('https://images.unsplash.com')}
+              unoptimized={images[activeIdx].startsWith('http')}
             />
           </motion.div>
         </AnimatePresence>
@@ -102,7 +102,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                 alt={`${title} thumbnail ${i + 1}`}
                 fill
                 className="object-cover"
-                unoptimized={src.startsWith('https://images.unsplash.com')}
+                unoptimized={src.startsWith('http')}
               />
             </button>
           ))}
@@ -133,7 +133,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                 alt={`${title} expanded`}
                 fill
                 className="object-contain"
-                unoptimized={images[activeIdx].startsWith('https://images.unsplash.com')}
+                unoptimized={images[activeIdx].startsWith('http')}
               />
 
               {/* Navigation inside Modal */}
@@ -170,7 +170,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     alt=""
                     fill
                     className="object-cover"
-                    unoptimized={src.startsWith('https://images.unsplash.com')}
+                    unoptimized={src.startsWith('http')}
                   />
                 </button>
               ))}
